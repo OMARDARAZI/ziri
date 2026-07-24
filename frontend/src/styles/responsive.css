@@ -1,0 +1,97 @@
+/* Responsive Adaptations */
+
+@media (max-width: 991.98px) {
+  .content-area {
+    padding: 1.5rem 1rem;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .page-header {
+    margin-bottom: 1.5rem;
+  }
+
+  .stat-card {
+    padding: 1.25rem;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+  }
+
+  /* Compact form rows on mobile */
+  .row.g-3 > [class*="col-"] {
+    margin-bottom: 0.5rem;
+  }
+
+  /* Table mobile stacking layout */
+  .table-mobile-cards thead {
+    display: none; /* Hide header on mobile if stacked */
+  }
+
+  .table-mobile-cards tr {
+    display: block;
+    border: 1px solid var(--zeere-border);
+    border-radius: var(--zeere-radius-md);
+    margin-bottom: 1rem;
+    padding: 0.5rem 0;
+    box-shadow: var(--zeere-shadow-sm);
+    background: var(--zeere-surface);
+  }
+
+  .table-mobile-cards td {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid var(--zeere-border);
+    font-size: 0.9rem;
+    text-align: right;
+  }
+
+  .table-mobile-cards td:last-child {
+    border-bottom: none;
+  }
+
+  .table-mobile-cards td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--zeere-navy-light);
+    text-align: left;
+    margin-right: 1rem;
+  }
+
+  /* Responsive details layouts */
+  dt.col-sm-3 {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+  }
+  
+  dd.col-sm-9 {
+    margin-bottom: 0.75rem;
+    font-weight: 500;
+  }
+}
+
+/* Touch targets optimizations */
+button, 
+a.btn, 
+input, 
+select, 
+.form-check-input {
+  min-height: 44px; /* iOS standard touch target height */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-sm, 
+.pagination .page-link, 
+.form-check-input {
+  min-height: unset; /* Don't force min-height on small indicators */
+}
+
+.form-check {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+}

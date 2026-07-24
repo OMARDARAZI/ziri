@@ -1,0 +1,1 @@
+export function extractQrToken(value:string){const raw=value.trim();if(!raw)return '';if(/^[a-f0-9]{32,128}$/i.test(raw))return raw;try{const url=new URL(raw);const match=url.pathname.match(/^\/qr\/([a-f0-9]{32,128})/i);return match?.[1] || '';}catch{return '';}}

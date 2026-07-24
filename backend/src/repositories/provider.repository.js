@@ -1,0 +1,6 @@
+const db = require('../config/database'); const { getPagination, limitOffsetClause, metadata } = require('../utils/pagination');
+const select = `p.*, u.full_name AS account_name, u.phone AS account_phone, u.is_active AS account_active`;
+async function list(query = {}) { const { page, limit, offset } = getPagination(query); const [items, totals] = await Promise.all([db.query(`SELECT ${select} FROM providers p JOIN users u ON u.id=p.user_id WHERE p.is_active=1 AND u.is_active=1 ORDER BY p.business_name ${limitOffsetClause(limit, offset)}`), db.query('SELECT COUNT(*) AS total FROM providers p JOIN users u ON u.id=p.user_id WHERE p.is_active=1 AND u.is_active=1')]); return { items, pagination: metadata(page, limit, totals[0].total) }; }
+async function find(id) { const rows = await db.query(`SELECT ${select} FROM providers p JOIN users u ON u.id=p.user_id WHERE p.id=?`, [id]); return rows[0] || null; }
+async function byUserId(userId, executor = db) { const rows = executor.execute ? (await executor.execute(`SELECT ${select} FROM providers p JOIN users u ON u.id=p.user_id WHERE p.user_id=?`, [userId]))[0] : await executor.query(`SELECT ${select} FROM providers p JOIN users u ON u.id=p.user_id WHERE p.user_id=?`, [userId]); return rows[0] || null; }
+module.exports = { list, find, byUserId };

@@ -1,0 +1,4 @@
+const db = require('../config/database');
+const select = `q.*, bp.full_name AS participant_name, bp.phone AS participant_phone, bp.booking_id, b.booking_code, b.scheduled_at, b.status AS booking_status, o.id AS offering_id, o.title AS offering_title, o.type AS offering_type, o.provider_id, p.business_name AS provider_name`;
+async function findByToken(token, executor = db, lock = false) { const sql = `SELECT ${select} FROM participant_qr_codes q JOIN booking_participants bp ON bp.id=q.participant_id JOIN bookings b ON b.id=bp.booking_id JOIN offerings o ON o.id=b.offering_id JOIN providers p ON p.id=o.provider_id WHERE q.public_token=?${lock ? ' FOR UPDATE' : ''}`; const rows = executor.execute ? (await executor.execute(sql,[token]))[0] : await executor.query(sql,[token]); return rows[0] || null; }
+module.exports = { findByToken };

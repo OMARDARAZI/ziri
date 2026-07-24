@@ -1,0 +1,60 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--zeere-font-family);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--zeere-text);
+  background-color: var(--zeere-background);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: var(--zeere-teal);
+  text-decoration: none;
+  transition: color var(--zeere-transition-fast);
+}
+
+a:hover {
+  color: var(--zeere-turquoise);
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+input, button, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/* Custom modern scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(11, 31, 51, 0.15);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(11, 31, 51, 0.3);
+}
+
+/* Focus rings outline styling */
+*:focus-visible {
+  outline: 2px solid var(--zeere-teal);
+  outline-offset: 2px;
+}

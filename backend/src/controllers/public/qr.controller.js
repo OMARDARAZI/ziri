@@ -1,0 +1,3 @@
+const qr=require('../../services/qr.service'); const {maskPhone}=require('../../utils/phone');
+async function page(req,res){const record=await qr.publicRecord(req.params.token);if(!record)return res.status(404).render('public/invalid-qr',{title:'Invalid QR Code'});let displayStatus=record.status;if(record.status==='ACTIVE'&&new Date()<new Date(record.valid_from))displayStatus='NOT_YET_VALID';res.render('public/qr',{title:'Zeere QR',record,displayStatus,maskedPhone:maskPhone(record.participant_phone)});}
+async function image(req,res){const png=await qr.image(req.params.token);res.type('png').send(png);} module.exports={page,image};

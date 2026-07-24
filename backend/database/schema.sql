@@ -1,0 +1,117 @@
+CREATE DATABASE IF NOT EXISTS zeere CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE zeere;
+
+CREATE TABLE IF NOT EXISTS users (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  role ENUM('ADMIN','CUSTOMER','PROVIDER') NOT NULL,
+  full_name VARCHAR(150) NOT NULL,
+  phone VARCHAR(20) NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_users_phone (phone), KEY idx_users_role (role), KEY idx_users_phone (phone)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS refresh_tokens (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, user_id BIGINT UNSIGNED NOT NULL,
+  token_hash CHAR(64) NOT NULL, jti CHAR(64) NOT NULL, expires_at DATETIME NOT NULL, revoked_at DATETIME NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_refresh_token_hash (token_hash), UNIQUE KEY uq_refresh_jti (jti), KEY idx_refresh_user (user_id), KEY idx_refresh_expires (expires_at),
+  CONSTRAINT fk_refresh_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS providers (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, user_id BIGINT UNSIGNED NOT NULL,
+  business_name VARCHAR(180) NOT NULL, description TEXT NULL, logo VARCHAR(255) NULL, cover_image VARCHAR(255) NULL,
+  phone VARCHAR(20) NOT NULL, email VARCHAR(190) NULL, address VARCHAR(255) NULL, is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_provider_user (user_id), KEY idx_provider_active (is_active),
+  CONSTRAINT fk_provider_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS stories (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, title VARCHAR(255) NOT NULL, content TEXT NOT NULL, image VARCHAR(255) NOT NULL,
+  story_time DATETIME NOT NULL, is_active BOOLEAN NOT NULL DEFAULT TRUE, display_order INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  KEY idx_stories_active_order (is_active, display_order), KEY idx_stories_time (story_time)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS news_articles (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, title VARCHAR(255) NOT NULL, content TEXT NOT NULL, image VARCHAR(255) NOT NULL,
+  published_at DATETIME NOT NULL, is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  KEY idx_news_active_published (is_active, published_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS events (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, title VARCHAR(255) NOT NULL, description TEXT NOT NULL, image VARCHAR(255) NOT NULL,
+  event_date DATE NOT NULL, start_time TIME NULL, end_time TIME NULL, location VARCHAR(255) NULL, is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  KEY idx_events_date (event_date), KEY idx_events_active_date (is_active,event_date)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS safety_tips (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, title VARCHAR(255) NOT NULL, content TEXT NOT NULL, image VARCHAR(255) NULL,
+  is_active BOOLEAN NOT NULL DEFAULT TRUE, display_order INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  KEY idx_tips_active_order (is_active, display_order)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS weather_updates (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, location VARCHAR(120) NOT NULL, temperature DECIMAL(6,2) NOT NULL, condition VARCHAR(120) NOT NULL,
+  description TEXT NOT NULL, humidity DECIMAL(5,2) NULL, wind_speed DECIMAL(6,2) NULL, weather_date DATETIME NOT NULL,
+  icon VARCHAR(255) NULL, is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  KEY idx_weather_active_date (is_active, weather_date)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS offerings (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, provider_id BIGINT UNSIGNED NOT NULL, type ENUM('SERVICE','ACTIVITY') NOT NULL,
+  title VARCHAR(255) NOT NULL, description TEXT NOT NULL, image VARCHAR(255) NOT NULL, price_usd DECIMAL(12,2) NOT NULL,
+  price_lbp DECIMAL(15,2) NOT NULL, duration_minutes INT NULL, capacity INT NULL, location VARCHAR(255) NULL, is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT chk_offering_usd CHECK (price_usd >= 0), CONSTRAINT chk_offering_lbp CHECK (price_lbp >= 0),
+  KEY idx_offering_provider (provider_id), KEY idx_offering_type (type), KEY idx_offering_active_type (is_active,type),
+  CONSTRAINT fk_offering_provider FOREIGN KEY (provider_id) REFERENCES providers(id) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS bookings (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, booking_code VARCHAR(40) NOT NULL, customer_user_id BIGINT UNSIGNED NOT NULL,
+  offering_id BIGINT UNSIGNED NOT NULL, scheduled_at DATETIME NOT NULL, currency ENUM('USD','LBP') NOT NULL, unit_price DECIMAL(15,2) NOT NULL,
+  participant_count INT NOT NULL, total_amount DECIMAL(15,2) NOT NULL, status ENUM('PENDING','CONFIRMED','CANCELLED','COMPLETED') NOT NULL DEFAULT 'PENDING',
+  notes TEXT NULL, created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_booking_code (booking_code), KEY idx_booking_customer (customer_user_id), KEY idx_booking_status (status), KEY idx_booking_scheduled (scheduled_at), KEY idx_booking_offering (offering_id),
+  CONSTRAINT chk_booking_count CHECK (participant_count > 0), CONSTRAINT chk_booking_total CHECK (total_amount >= 0),
+  CONSTRAINT fk_booking_customer FOREIGN KEY (customer_user_id) REFERENCES users(id) ON DELETE RESTRICT,
+  CONSTRAINT fk_booking_offering FOREIGN KEY (offering_id) REFERENCES offerings(id) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS booking_participants (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, booking_id BIGINT UNSIGNED NOT NULL, full_name VARCHAR(150) NOT NULL, phone VARCHAR(20) NOT NULL,
+  is_owner BOOLEAN NOT NULL DEFAULT FALSE, created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  KEY idx_participant_booking (booking_id), CONSTRAINT fk_participant_booking FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS participant_qr_codes (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, participant_id BIGINT UNSIGNED NOT NULL, public_token CHAR(64) NOT NULL,
+  status ENUM('ACTIVE','USED','EXPIRED','CANCELLED') NOT NULL DEFAULT 'ACTIVE', valid_from DATETIME NOT NULL, valid_until DATETIME NOT NULL,
+  used_at DATETIME NULL, used_by_provider_user_id BIGINT UNSIGNED NULL, expired_reason ENUM('SCANNED','TIME_EXPIRED','BOOKING_CANCELLED','ADMIN_CANCELLED') NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uq_qr_participant (participant_id), UNIQUE KEY uq_qr_token (public_token), KEY idx_qr_token (public_token), KEY idx_qr_status (status), KEY idx_qr_used_at (used_at),
+  CONSTRAINT fk_qr_participant FOREIGN KEY (participant_id) REFERENCES booking_participants(id) ON DELETE CASCADE,
+  CONSTRAINT fk_qr_provider_user FOREIGN KEY (used_by_provider_user_id) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS qr_scan_logs (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, qr_id BIGINT UNSIGNED NULL, scanned_by_user_id BIGINT UNSIGNED NOT NULL,
+  provided_token VARCHAR(512) NOT NULL, success BOOLEAN NOT NULL, result_code VARCHAR(50) NOT NULL, result_message VARCHAR(255) NOT NULL,
+  ip_address VARCHAR(64) NULL, user_agent VARCHAR(512) NULL, created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY idx_scan_provider (scanned_by_user_id), KEY idx_scan_created (created_at), KEY idx_scan_qr (qr_id),
+  CONSTRAINT fk_scan_qr FOREIGN KEY (qr_id) REFERENCES participant_qr_codes(id) ON DELETE SET NULL,
+  CONSTRAINT fk_scan_user FOREIGN KEY (scanned_by_user_id) REFERENCES users(id) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS app_settings (
+  setting_key VARCHAR(100) PRIMARY KEY, setting_value TEXT NOT NULL, updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

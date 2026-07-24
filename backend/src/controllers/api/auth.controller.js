@@ -1,0 +1,9 @@
+const auth=require('../../services/auth.service'); const tokenService=require('../../services/token.service'); const {success}=require('../../utils/apiResponse'); const {normalizePhone}=require('../../utils/phone'); const users=require('../../repositories/user.repository'); const AppError=require('../../utils/AppError');
+async function register(req,res){ const result=await auth.register(req.body); success(res,{user:result.user,tokens:result.tokens},'Account registered successfully',201); }
+async function login(req,res){ const result=await auth.login(req.body.phone,req.body.password,['CUSTOMER']); success(res,{user:result.user,tokens:result.tokens},'Login successful'); }
+async function refresh(req,res){ const tokens=await tokenService.rotate(req.body.refresh_token); if(!tokens) throw new AppError('Invalid or expired refresh token',401,'INVALID_REFRESH_TOKEN'); success(res,{tokens},'Token refreshed successfully'); }
+async function logout(req,res){ await tokenService.revoke(req.body.refresh_token); success(res,{},'Logged out successfully'); }
+async function me(req,res){ success(res,{user:req.user}); }
+async function profile(req,res){ const phone=normalizePhone(req.body.phone); if(!phone) throw new AppError('Phone number is invalid',422,'VALIDATION_ERROR'); const existing=await users.findByPhone(phone); if(existing&&existing.id!==req.user.id) throw new AppError('Phone number is already registered',409,'PHONE_EXISTS'); const user=await users.updateProfile(req.user.id,{fullName:req.body.full_name.trim(),phone}); success(res,{user},'Profile updated successfully'); }
+async function changePassword(req,res){ await auth.changePassword(req.user.id,req.body.current_password,req.body.new_password); success(res,{},'Password changed successfully. Please log in again.'); }
+module.exports={register,login,refresh,logout,me,profile,changePassword};

@@ -1,0 +1,3 @@
+const crypto=require('crypto'); const AppError=require('../utils/AppError');
+function csrfProtection(req,res,next){ if(!req.session) return next(new AppError('Session is not available',500)); if(!req.session.csrfToken) req.session.csrfToken=crypto.randomBytes(32).toString('hex'); res.locals.csrfToken=req.session.csrfToken; if(['GET','HEAD','OPTIONS'].includes(req.method)) return next(); const supplied=req.get('x-csrf-token')||req.body?._csrf; const expected=String(req.session.csrfToken); if(!supplied||String(supplied).length!==expected.length||!crypto.timingSafeEqual(Buffer.from(String(supplied)),Buffer.from(expected))) return next(new AppError('Invalid CSRF token',403,'CSRF_INVALID')); next(); }
+module.exports={csrfProtection};

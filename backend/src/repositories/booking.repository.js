@@ -1,0 +1,5 @@
+const db = require('../config/database');
+const select = `b.*, o.title AS offering_title, o.type AS offering_type, o.provider_id, p.business_name AS provider_name, p.user_id AS provider_user_id`;
+async function find(id, executor = db, lock = false) { const sql = `SELECT ${select} FROM bookings b JOIN offerings o ON o.id=b.offering_id JOIN providers p ON p.id=o.provider_id WHERE b.id=?${lock ? ' FOR UPDATE' : ''}`; const rows = executor.execute ? (await executor.execute(sql,[id]))[0] : await executor.query(sql,[id]); return rows[0] || null; }
+async function participantRows(bookingId, executor = db) { const sql = `SELECT bp.*, q.id AS qr_id, q.public_token, q.status AS qr_status, q.valid_from, q.valid_until, q.used_at, q.expired_reason FROM booking_participants bp LEFT JOIN participant_qr_codes q ON q.participant_id=bp.id WHERE bp.booking_id=? ORDER BY bp.id`; return executor.execute ? (await executor.execute(sql,[bookingId]))[0] : await executor.query(sql,[bookingId]); }
+module.exports = { find, participantRows, select };

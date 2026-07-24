@@ -1,0 +1,3 @@
+import { AxiosError } from 'axios'; import type { FieldError } from '../types/api';
+export class ApiError extends Error { status?:number; code?:string; fields:FieldError[]; constructor(message:string,status?:number,fields:FieldError[]=[],code?:string){super(message);this.name='ApiError';this.status=status;this.code=code;this.fields=fields;} }
+export function toApiError(error:unknown):ApiError { if (error instanceof ApiError) return error; if (error instanceof AxiosError) { const body=error.response?.data as {message?:string;code?:string;errors?:FieldError[]}|undefined; return new ApiError(body?.message || error.message || 'Network request failed',error.response?.status,body?.errors || [],body?.code); } return new ApiError('An unexpected error occurred'); }

@@ -1,0 +1,1 @@
+const router=require('express').Router();const controller=require('../../controllers/public/qr.controller');const asyncHandler=require('../../utils/asyncHandler');router.get('/qr/:token/image',asyncHandler(controller.image));router.get('/qr/:token',asyncHandler(controller.page));module.exports=router;

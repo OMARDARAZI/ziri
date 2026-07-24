@@ -1,0 +1,2 @@
+import { StrictMode } from 'react';import { createRoot } from 'react-dom/client';import 'bootstrap/dist/css/bootstrap.min.css';import 'bootstrap-icons/font/bootstrap-icons.css';import './styles/index.css';import { App } from './app/App';import { Providers } from './app/Providers';import { ErrorBoundary } from './app/ErrorBoundary';
+createRoot(document.getElementById('root')!).render(<StrictMode><ErrorBoundary><Providers><App/></Providers></ErrorBoundary></StrictMode>);

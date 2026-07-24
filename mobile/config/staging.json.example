@@ -1,0 +1,8 @@
+{
+  "APP_ENV": "staging",
+  "APP_NAME": "Zeere",
+  "API_BASE_URL": "https://staging.example.com/api/v1",
+  "BACKEND_ORIGIN": "https://staging.example.com",
+  "PUBLIC_QR_BASE_URL": "https://staging.example.com/qr",
+  "ENABLE_API_LOGGING": "false"
+}

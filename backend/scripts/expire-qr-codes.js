@@ -1,0 +1,1 @@
+const {query,pool}=require('../src/config/database');async function main(){const result=await query("UPDATE participant_qr_codes SET status='EXPIRED',expired_reason='TIME_EXPIRED' WHERE status='ACTIVE' AND valid_until<NOW()");console.log(`${result.affectedRows} QR code(s) expired.`);await pool.end();}main().catch(error=>{console.error(error.message);process.exitCode=1;});

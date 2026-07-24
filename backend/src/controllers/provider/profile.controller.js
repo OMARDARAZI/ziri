@@ -1,0 +1,4 @@
+const providerRepo=require('../../repositories/provider.repository');const {query}=require('../../config/database');const {normalizePhone}=require('../../utils/phone');const AppError=require('../../utils/AppError');const {setFlash}=require('../../middleware/web-auth.middleware');
+async function page(req,res){res.render('provider/profile',{title:'Profile',provider:await providerRepo.byUserId(req.session.user.id)});}
+async function save(req,res){const provider=await providerRepo.byUserId(req.session.user.id);const phone=normalizePhone(req.body.phone);if(!phone)throw new AppError('Phone is invalid',422);await query('UPDATE providers SET business_name=?,description=?,phone=?,email=?,address=? WHERE id=?',[req.body.business_name.trim(),req.body.description?.trim()||null,phone,req.body.email?.trim()||null,req.body.address?.trim()||null,provider.id]);setFlash(req,'success','Profile updated.');res.redirect('/provider/profile');}
+module.exports={page,save};

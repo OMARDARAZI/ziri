@@ -1,0 +1,272 @@
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--zeere-font-family);
+  font-weight: 700;
+  color: var(--zeere-navy);
+}
+
+h1 { font-size: 1.75rem; letter-spacing: -0.02em; }
+h2 { font-size: 1.5rem; letter-spacing: -0.01em; }
+h3 { font-size: 1.25rem; }
+h4 { font-size: 1.1rem; }
+
+.text-muted {
+  color: var(--zeere-muted) !important;
+}
+
+/* Button overrides */
+.btn {
+  font-weight: 500;
+  border-radius: var(--zeere-radius-md);
+  padding: 0.5rem 1.25rem;
+  transition: all var(--zeere-transition-fast);
+  box-shadow: none;
+}
+
+.btn-sm {
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--zeere-radius-sm);
+  font-size: 0.85rem;
+}
+
+.btn-primary {
+  background-color: var(--zeere-teal);
+  border-color: var(--zeere-teal);
+  color: #ffffff;
+}
+
+.btn-primary:hover, .btn-primary:focus, .btn-primary:active {
+  background-color: var(--zeere-turquoise) !important;
+  border-color: var(--zeere-turquoise) !important;
+  color: #ffffff !important;
+}
+
+.btn-outline-primary {
+  color: var(--zeere-teal);
+  border-color: var(--zeere-teal);
+}
+
+.btn-outline-primary:hover, .btn-outline-primary:focus, .btn-outline-primary:active {
+  background-color: var(--zeere-teal) !important;
+  border-color: var(--zeere-teal) !important;
+  color: #ffffff !important;
+}
+
+.btn-outline-secondary {
+  color: var(--zeere-muted);
+  border-color: var(--zeere-border);
+}
+
+.btn-outline-secondary:hover {
+  background-color: var(--zeere-sand);
+  color: var(--zeere-navy);
+  border-color: var(--zeere-border);
+}
+
+.btn-success {
+  background-color: var(--zeere-success);
+  border-color: var(--zeere-success);
+}
+
+.btn-success:hover {
+  background-color: #146c43;
+  border-color: #13653f;
+}
+
+.btn-danger {
+  background-color: var(--zeere-danger);
+  border-color: var(--zeere-danger);
+}
+
+.btn-danger:hover {
+  background-color: #b03535;
+  border-color: #a53232;
+}
+
+/* Card overrides */
+.card {
+  background-color: var(--zeere-surface);
+  border: 1px solid var(--zeere-border);
+  border-radius: var(--zeere-radius-lg);
+  box-shadow: var(--zeere-shadow-sm);
+  overflow: hidden;
+  transition: transform var(--zeere-transition-fast), box-shadow var(--zeere-transition-fast);
+}
+
+.card-header {
+  background-color: transparent;
+  border-bottom: 1px solid var(--zeere-border);
+  padding: 1.25rem 1.5rem;
+  font-weight: 600;
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+/* Form controls override */
+.form-label {
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: var(--zeere-navy);
+  margin-bottom: 0.375rem;
+}
+
+.form-control, .form-select {
+  border-radius: var(--zeere-radius-md);
+  border: 1px solid var(--zeere-border);
+  padding: 0.5rem 0.85rem;
+  font-size: 0.95rem;
+  color: var(--zeere-text);
+  background-color: var(--zeere-surface);
+  transition: border-color var(--zeere-transition-fast), box-shadow var(--zeere-transition-fast);
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--zeere-turquoise);
+  box-shadow: 0 0 0 3px rgba(28, 181, 176, 0.15);
+  outline: none;
+}
+
+.form-check-input {
+  border-radius: 4px;
+  border: 1px solid var(--zeere-border);
+  width: 1.2rem;
+  height: 1.2rem;
+  margin-top: 0.2rem;
+  cursor: pointer;
+}
+
+.form-check-input:checked {
+  background-color: var(--zeere-teal);
+  border-color: var(--zeere-teal);
+}
+
+.form-check-label {
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.95rem;
+  padding-left: 0.25rem;
+  color: var(--zeere-text);
+}
+
+/* Table overrides */
+.table-responsive {
+  border-radius: var(--zeere-radius-lg);
+}
+
+.table {
+  width: 100%;
+  margin-bottom: 0;
+  color: var(--zeere-text);
+  vertical-align: middle;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.table th {
+  background-color: rgba(22, 52, 79, 0.03);
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--zeere-navy-light);
+  padding: 0.85rem 1.25rem;
+  border-bottom: 2px solid var(--zeere-border);
+}
+
+.table td {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--zeere-border);
+  font-size: 0.95rem;
+  background-color: var(--zeere-surface);
+}
+
+.table-hover tbody tr:hover td {
+  background-color: rgba(22, 52, 79, 0.015);
+}
+
+/* Badge overrides */
+.badge {
+  font-weight: 600;
+  padding: 0.4em 0.8em;
+  border-radius: 30px;
+  font-size: 0.8rem;
+}
+
+.text-bg-success {
+  background-color: var(--zeere-success-soft) !important;
+  color: var(--zeere-success) !important;
+}
+
+.text-bg-danger {
+  background-color: var(--zeere-danger-soft) !important;
+  color: var(--zeere-danger) !important;
+}
+
+.text-bg-warning {
+  background-color: var(--zeere-warning-soft) !important;
+  color: var(--zeere-warning) !important;
+}
+
+.text-bg-secondary {
+  background-color: var(--zeere-border) !important;
+  color: var(--zeere-muted) !important;
+}
+
+/* Alert overrides */
+.alert {
+  border-radius: var(--zeere-radius-md);
+  padding: 1rem 1.25rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border: 1px solid transparent;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.alert-danger {
+  background-color: var(--zeere-danger-soft);
+  border-color: rgba(214, 69, 69, 0.15);
+  color: var(--zeere-danger);
+}
+
+.alert-success {
+  background-color: var(--zeere-success-soft);
+  border-color: rgba(25, 135, 84, 0.15);
+  color: var(--zeere-success);
+}
+
+.alert-warning {
+  background-color: var(--zeere-warning-soft);
+  border-color: rgba(229, 161, 0, 0.15);
+  color: var(--zeere-warning);
+}
+
+.alert-info {
+  background-color: var(--zeere-info-soft);
+  border-color: rgba(13, 110, 253, 0.15);
+  color: var(--zeere-info);
+}
+
+/* Pagination overrides */
+.pagination .page-link {
+  border: 1px solid var(--zeere-border);
+  color: var(--zeere-navy-light);
+  padding: 0.4rem 0.85rem;
+  font-weight: 500;
+  background-color: var(--zeere-surface);
+  transition: all var(--zeere-transition-fast);
+}
+
+.pagination .page-link:hover {
+  background-color: var(--zeere-sand);
+  color: var(--zeere-teal);
+  border-color: var(--zeere-border);
+}
+
+.pagination .page-item.disabled .page-link {
+  background-color: var(--zeere-background);
+  color: var(--zeere-muted);
+}

@@ -1,0 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  /* Brand Colors */
+  --zeere-navy: #0B1F33;
+  --zeere-navy-light: #16344F;
+  --zeere-teal: #0B7F83;
+  --zeere-turquoise: #1CB5B0;
+  --zeere-aqua-soft: #DDF5F3;
+  --zeere-sand: #F5F0E8;
+  --zeere-coral: #F27A5E;
+  
+  /* UI Surface Colors */
+  --zeere-background: #F5F7FA;
+  --zeere-surface: #FFFFFF;
+  --zeere-border: #E5EAF0;
+  --zeere-text: #17212B;
+  --zeere-muted: #6B7785;
+  
+  /* Status Colors */
+  --zeere-success: #198754;
+  --zeere-success-soft: #D1E7DD;
+  --zeere-warning: #E5A100;
+  --zeere-warning-soft: #FFF3CD;
+  --zeere-danger: #D64545;
+  --zeere-danger-soft: #F8D7DA;
+  --zeere-info: #0D6EFD;
+  --zeere-info-soft: #CFF4FC;
+
+  /* Typography */
+  --zeere-font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --zeere-font-fallback: 'Inter', system-ui, sans-serif;
+
+  /* Border Radiuses */
+  --zeere-radius-sm: 8px;
+  --zeere-radius-md: 10px;
+  --zeere-radius-lg: 14px;
+  --zeere-radius-xl: 18px;
+
+  /* Shadows */
+  --zeere-shadow-sm: 0 2px 8px rgba(11, 31, 51, 0.04);
+  --zeere-shadow-md: 0 4px 16px rgba(11, 31, 51, 0.08);
+  --zeere-shadow-lg: 0 8px 32px rgba(11, 31, 51, 0.12);
+  --zeere-shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+
+  /* Transitions */
+  --zeere-transition-fast: 0.15s ease;
+  --zeere-transition-normal: 0.25s ease;
+  --zeere-transition-slow: 0.35s ease;
+
+  /* Dimensions */
+  --zeere-sidebar-width: 260px;
+  --zeere-sidebar-collapsed-width: 76px;
+  --zeere-header-height: 70px;
+}

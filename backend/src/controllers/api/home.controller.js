@@ -1,0 +1,3 @@
+const content=require('../../repositories/content.repository'); const {success}=require('../../utils/apiResponse');
+async function home(_req,res){ const [stories,news,events,safetyTips,weather]=await Promise.all([content.list('stories',{limit:20}),content.list('news',{limit:10}),content.list('events',{limit:10}),content.list('safetyTips',{limit:20}),content.list('weather',{limit:1})]); success(res,{stories:stories.items,news:news.items,events:events.items.filter((event)=>new Date(event.event_date)>=new Date(new Date().toDateString())),safety_tips:safetyTips.items,weather:weather.items[0]||null}); }
+module.exports={home};

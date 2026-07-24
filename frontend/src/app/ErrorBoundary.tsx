@@ -1,0 +1,2 @@
+import { Component } from 'react';import type { ReactNode } from 'react';
+interface State{failed:boolean;}export class ErrorBoundary extends Component<{children:ReactNode},State>{state:State={failed:false};static getDerivedStateFromError(){return {failed:true};}componentDidCatch(){}render(){if(this.state.failed)return <main className="container py-5"><div className="alert alert-danger">Something went wrong. Reload the page to continue.</div></main>;return this.props.children;}}

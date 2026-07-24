@@ -1,0 +1,1 @@
+module.exports=(req,res)=>{ if(req.originalUrl.startsWith('/api/')) return res.status(404).json({success:false,message:'Route not found',code:'ROUTE_NOT_FOUND'}); res.status(404).render('errors/not-found',{title:'Page not found'}); };

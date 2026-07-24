@@ -1,0 +1,3 @@
+const required = ['VITE_API_BASE_URL','VITE_BACKEND_ORIGIN'] as const;
+for (const key of required) { if (!import.meta.env[key] && import.meta.env.DEV) throw new Error(`Missing required environment variable: ${key}`); }
+export const env = { appName: import.meta.env.VITE_APP_NAME || 'Zeere', apiBaseUrl: import.meta.env.VITE_API_BASE_URL || '/api/v1', backendOrigin: (import.meta.env.VITE_BACKEND_ORIGIN || '').replace(/\/$/, ''), publicQrBaseUrl: (import.meta.env.VITE_PUBLIC_QR_BASE_URL || `${window.location.origin}/qr`).replace(/\/$/, ''), logging: import.meta.env.VITE_ENABLE_API_LOGGING === 'true' };
