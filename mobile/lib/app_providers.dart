@@ -100,10 +100,15 @@ class SessionController extends Notifier<SessionState> {
   Future<void> updateProfile({
     required String name,
     required String phone,
+    String? avatarUrl,
+    String? filePath,
   }) async {
-    final user = await ref
-        .read(authRepositoryProvider)
-        .updateProfile(fullName: name, phone: phone);
+    final user = await ref.read(authRepositoryProvider).updateProfile(
+          fullName: name,
+          phone: phone,
+          avatarUrl: avatarUrl,
+          filePath: filePath,
+        );
     state = state.copyWith(user: user);
   }
 
@@ -120,6 +125,14 @@ class SessionController extends Notifier<SessionState> {
   Future<void> logout() async {
     try {
       await ref.read(authRepositoryProvider).logout();
+    } finally {
+      state = const SessionState(isRestoring: false);
+    }
+  }
+
+  Future<void> deleteAccount() async {
+    try {
+      await ref.read(authRepositoryProvider).deleteAccount();
     } finally {
       state = const SessionState(isRestoring: false);
     }
@@ -147,6 +160,9 @@ final newsProvider = FutureProvider<PageResult<NewsArticle>>(
 final eventsProvider = FutureProvider<PageResult<Event>>(
   (Ref ref) => ref.watch(contentRepositoryProvider).events(),
 );
+final restaurantsProvider = FutureProvider<PageResult<Restaurant>>(
+  (Ref ref) => ref.watch(contentRepositoryProvider).restaurants(),
+);
 final safetyTipsProvider = FutureProvider<PageResult<SafetyTip>>(
   (Ref ref) => ref.watch(contentRepositoryProvider).safetyTips(),
 );
@@ -156,9 +172,42 @@ final weatherProvider = FutureProvider<PageResult<Weather>>(
 final providersProvider = FutureProvider<PageResult<ProviderProfile>>(
   (Ref ref) => ref.watch(exploreRepositoryProvider).providers(),
 );
-final offeringsProvider = FutureProvider.family<PageResult<Offering>, String?>(
-  (Ref ref, String? type) =>
-      ref.watch(exploreRepositoryProvider).offerings(type: type),
+
+class OfferingFilter {
+  const OfferingFilter({
+    this.type,
+    this.search,
+    this.page = 1,
+    this.limit = 20,
+  });
+
+  final String? type;
+  final String? search;
+  final int page;
+  final int limit;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is OfferingFilter &&
+          runtimeType == other.runtimeType &&
+          type == other.type &&
+          search == other.search &&
+          page == other.page &&
+          limit == other.limit;
+
+  @override
+  int get hashCode => Object.hash(type, search, page, limit);
+}
+
+final offeringsProvider = FutureProvider.family<PageResult<Offering>, OfferingFilter>(
+  (Ref ref, OfferingFilter filter) =>
+      ref.watch(exploreRepositoryProvider).offerings(
+        type: filter.type,
+        search: filter.search,
+        page: filter.page,
+        limit: filter.limit,
+      ),
 );
 final bookingsProvider = FutureProvider(
   (Ref ref) => ref.watch(bookingRepositoryProvider).bookings(),

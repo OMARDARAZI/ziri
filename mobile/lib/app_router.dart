@@ -6,9 +6,13 @@ import 'app_providers.dart';
 import 'core/widgets/common_widgets.dart';
 import 'features/auth/presentation/auth_screens.dart';
 import 'features/bookings/presentation/booking_screens.dart';
+import 'features/content/domain/content_models.dart';
 import 'features/content/presentation/content_screens.dart';
+import 'features/content/presentation/story_viewer_screen.dart';
 import 'features/explore/presentation/explore_screens.dart';
 import 'features/profile/presentation/profile_screens.dart';
+import 'features/profile/presentation/provider_scanner_screen.dart';
+
 
 final routerProvider = Provider<GoRouter>((Ref ref) {
   final refresh = ValueNotifier<int>(0);
@@ -42,14 +46,40 @@ final routerProvider = Provider<GoRouter>((Ref ref) {
       GoRoute(path: '/splash', builder: (_, _) => const SplashScreen()),
       GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
       GoRoute(path: '/register', builder: (_, _) => const RegisterScreen()),
+      GoRoute(
+        path: '/story-viewer',
+        builder: (BuildContext context, GoRouterState state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final rawStories = extra?['stories'];
+          final stories = rawStories is List ? rawStories.whereType<Story>().toList() : const <Story>[];
+          final initialIndex = (extra?['initialIndex'] as int?) ?? 0;
+          return StoryViewerScreen(stories: stories, initialIndex: initialIndex);
+        },
+      ),
       ShellRoute(
         builder: (BuildContext context, GoRouterState state, Widget child) =>
             MainShell(location: state.matchedLocation, child: child),
         routes: <RouteBase>[
-          GoRoute(path: '/home', builder: (_, _) => const HomeScreen()),
-          GoRoute(path: '/explore', builder: (_, _) => const ExploreScreen()),
-          GoRoute(path: '/bookings', builder: (_, _) => const BookingsScreen()),
-          GoRoute(path: '/profile', builder: (_, _) => const ProfileScreen()),
+          GoRoute(
+            path: '/home',
+            pageBuilder: (BuildContext context, GoRouterState state) =>
+                const NoTransitionPage(child: HomeScreen()),
+          ),
+          GoRoute(
+            path: '/explore',
+            pageBuilder: (BuildContext context, GoRouterState state) =>
+                const NoTransitionPage(child: ExploreScreen()),
+          ),
+          GoRoute(
+            path: '/bookings',
+            pageBuilder: (BuildContext context, GoRouterState state) =>
+                const NoTransitionPage(child: BookingsScreen()),
+          ),
+          GoRoute(
+            path: '/profile',
+            pageBuilder: (BuildContext context, GoRouterState state) =>
+                const NoTransitionPage(child: ProfileScreen()),
+          ),
         ],
       ),
       GoRoute(
@@ -84,6 +114,17 @@ final routerProvider = Provider<GoRouter>((Ref ref) {
         ),
       ),
       GoRoute(
+        path: '/restaurants',
+        builder: (_, _) => const ContentListScreen(kind: 'restaurants'),
+      ),
+      GoRoute(
+        path: '/restaurants/:id',
+        builder: (_, GoRouterState s) => _intRoute(
+          s,
+          (int id) => ContentDetailScreen(kind: 'restaurants', id: id),
+        ),
+      ),
+      GoRoute(
         path: '/safety-tips',
         builder: (_, _) => const ContentListScreen(kind: 'safety-tips'),
       ),
@@ -94,7 +135,6 @@ final routerProvider = Provider<GoRouter>((Ref ref) {
           (int id) => ContentDetailScreen(kind: 'safety-tips', id: id),
         ),
       ),
-      GoRoute(path: '/weather', builder: (_, _) => const WeatherScreen()),
       GoRoute(path: '/providers', builder: (_, _) => const ProvidersScreen()),
       GoRoute(
         path: '/providers/:id',
@@ -136,6 +176,10 @@ final routerProvider = Provider<GoRouter>((Ref ref) {
         path: '/profile/change-password',
         builder: (_, _) => const ChangePasswordScreen(),
       ),
+      GoRoute(
+        path: '/provider/scanner',
+        builder: (_, _) => const ProviderScannerScreen(),
+      ),
     ],
     errorBuilder: (_, _) => const NotFoundScreen(),
   );
@@ -162,40 +206,174 @@ class MainShell extends ConsumerWidget {
         : 0;
     const destinations = <String>['/home', '/explore', '/bookings', '/profile'];
     return Scaffold(
-      body: Column(
+      backgroundColor: const Color(0xFFF8FAFC),
+      body: Stack(
         children: <Widget>[
-          OfflineBanner(isOnline: online),
-          Expanded(child: child),
-        ],
-      ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: index,
-        onDestinationSelected: (int value) => context.go(destinations[value]),
-        destinations: const <NavigationDestination>[
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: 'Home',
+          // Page Content
+          Positioned.fill(
+            child: Column(
+              children: <Widget>[
+                OfflineBanner(isOnline: online),
+                Expanded(child: child),
+              ],
+            ),
           ),
-          NavigationDestination(
-            icon: Icon(Icons.explore_outlined),
-            selectedIcon: Icon(Icons.explore),
-            label: 'Explore',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.calendar_month_outlined),
-            selectedIcon: Icon(Icons.calendar_month),
-            label: 'Bookings',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
-            label: 'Profile',
+          // Floating Pill Bar Overlaid on Top
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: _FloatingNavBar(
+              selectedIndex: index,
+              onTap: (int value) => context.go(destinations[value]),
+            ),
           ),
         ],
       ),
     );
   }
+}
+
+class _FloatingNavBar extends StatelessWidget {
+  const _FloatingNavBar({
+    required this.selectedIndex,
+    required this.onTap,
+  });
+
+  final int selectedIndex;
+  final ValueChanged<int> onTap;
+
+  static const items = <_NavItemData>[
+    _NavItemData(
+      label: 'Home',
+      icon: Icons.home_outlined,
+      activeIcon: Icons.home_rounded,
+    ),
+    _NavItemData(
+      label: 'Explore',
+      icon: Icons.explore_outlined,
+      activeIcon: Icons.explore_rounded,
+    ),
+    _NavItemData(
+      label: 'Bookings',
+      icon: Icons.airplane_ticket_outlined,
+      activeIcon: Icons.airplane_ticket_rounded,
+    ),
+    _NavItemData(
+      label: 'Profile',
+      icon: Icons.person_outline_rounded,
+      activeIcon: Icons.person_rounded,
+    ),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16, 0, 16, bottomPadding > 0 ? bottomPadding : 16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(32),
+          border: Border.all(color: const Color(0xFFE2E8F0), width: 1.2),
+          boxShadow: const <BoxShadow>[
+            BoxShadow(
+              color: Color(0x1F0F5B78),
+              blurRadius: 28,
+              spreadRadius: 0,
+              offset: Offset(0, 10),
+            ),
+            BoxShadow(
+              color: Color(0x0A000000),
+              blurRadius: 8,
+              spreadRadius: -2,
+              offset: Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: List<Widget>.generate(items.length, (int index) {
+            final isSelected = selectedIndex == index;
+            final item = items[index];
+            return Expanded(
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => onTap(index),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 250),
+                      curve: Curves.easeOutCubic,
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                      decoration: BoxDecoration(
+                        gradient: isSelected
+                            ? const LinearGradient(
+                                colors: <Color>[Color(0xFFE5F4F8), Color(0xFFD4EDF5)],
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                              )
+                            : null,
+                        color: isSelected ? null : Colors.transparent,
+                        borderRadius: BorderRadius.circular(20),
+                        border: isSelected
+                            ? Border.all(color: const Color(0xFFB5DEEB), width: 1)
+                            : Border.all(color: Colors.transparent, width: 1),
+                      ),
+                      child: AnimatedScale(
+                        duration: const Duration(milliseconds: 200),
+                        scale: isSelected ? 1.12 : 1.0,
+                        child: Icon(
+                          isSelected ? item.activeIcon : item.icon,
+                          color: isSelected ? const Color(0xFF0F5B78) : const Color(0xFF64748B),
+                          size: 22,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    AnimatedDefaultTextStyle(
+                      duration: const Duration(milliseconds: 200),
+                      style: TextStyle(
+                        color: isSelected ? const Color(0xFF0F5B78) : const Color(0xFF64748B),
+                        fontSize: 11.5,
+                        fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
+                        letterSpacing: isSelected ? -0.2 : -0.1,
+                      ),
+                      child: Text(item.label),
+                    ),
+                    const SizedBox(height: 2),
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      width: isSelected ? 4 : 0,
+                      height: isSelected ? 4 : 0,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF0F5B78),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }),
+        ),
+      ),
+    );
+  }
+}
+
+class _NavItemData {
+  const _NavItemData({
+    required this.label,
+    required this.icon,
+    required this.activeIcon,
+  });
+
+  final String label;
+  final IconData icon;
+  final IconData activeIcon;
 }
 
 class NotFoundScreen extends StatelessWidget {

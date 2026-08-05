@@ -55,4 +55,13 @@ class BookingRepository {
     );
     return ParticipantQr.fromJson(asMap(data['qr']));
   }
+
+  Future<QrValidationResult> validateQrToken(String token) async {
+    final response = await _api.post(
+      '/provider/qr/validate',
+      data: <String, Object?>{'token': token.trim()},
+    );
+    return QrValidationResult.fromJson(asMap(response.data));
+  }
 }
+

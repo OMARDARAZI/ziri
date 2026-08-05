@@ -1,8 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <application
-        android:label="Zeere"
+        android:label="Zeera App"
         android:name="${applicationName}"
-        android:icon="@drawable/zeere_icon">
+        android:icon="@mipmap/zeere_icon">
         <activity
             android:name=".MainActivity"
             android:exported="true"

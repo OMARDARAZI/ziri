@@ -1,7 +1,12 @@
+const fs = require('fs');
+const path = require('path');
 const mysql = require('mysql2/promise');
 const env = require('../src/config/environment');
 
 const columns = {
+  users: {
+    provider_id: 'BIGINT UNSIGNED NULL'
+  },
   providers: {
     logo: 'VARCHAR(255) NULL',
     cover_image: 'VARCHAR(255) NULL',
@@ -80,7 +85,7 @@ async function addMissingColumns(connection) {
   for (const [table, tableColumns] of Object.entries(columns)) {
     for (const [column, definition] of Object.entries(tableColumns)) {
       if (await hasColumn(connection, table, column)) continue;
-      console.log(`Adding ${table}.${column}`);
+      console.log(`Adding missing column ${table}.${column}`);
       await connection.query(`ALTER TABLE \`${table}\` ADD COLUMN \`${column}\` ${definition}`);
       added.add(`${table}.${column}`);
     }
@@ -130,18 +135,53 @@ async function backfill(connection, added) {
   }
 }
 
-async function main() {
-  const connection = await mysql.createConnection(env.db);
+async function initializeDatabase() {
+  const { host, port, user, password, database } = env.db;
+
+  // 1. Ensure database exists
   try {
+    const serverConnection = await mysql.createConnection({ host, port, user, password });
+    await serverConnection.query(`CREATE DATABASE IF NOT EXISTS \`${database}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`);
+    await serverConnection.end();
+  } catch (error) {
+    console.warn(`Database creation check skipped: ${error.message}`);
+  }
+
+  // 2. Connect to the configured database
+  const connection = await mysql.createConnection({
+    host, port, user, password, database,
+    multipleStatements: true
+  });
+
+  try {
+    // 3. Initialize schema (creates missing tables)
+    const schemaPath = path.join(__dirname, 'schema.sql');
+    if (fs.existsSync(schemaPath)) {
+      let schemaSql = fs.readFileSync(schemaPath, 'utf8');
+      schemaSql = schemaSql
+        .replace(/CREATE DATABASE[\s\S]*?;/gi, '')
+        .replace(/USE\s+[`\w]+;/gi, '');
+      await connection.query(schemaSql);
+    }
+
+    // 4. Apply schema column changes to existing tables
     const added = await addMissingColumns(connection);
+
+    // 5. Run data backfill logic if columns were added
     await backfill(connection, added);
-    console.log('Database migration completed.');
+
+    console.log(`Database '${database}' initialized and changes applied successfully.`);
   } finally {
     await connection.end();
   }
 }
 
-main().catch((error) => {
-  console.error(error.message);
-  process.exitCode = 1;
-});
+if (require.main === module) {
+  initializeDatabase().catch((error) => {
+    console.error('Database initialization failed:', error.message);
+    process.exitCode = 1;
+  });
+}
+
+module.exports = { initializeDatabase };
+

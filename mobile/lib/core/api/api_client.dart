@@ -98,7 +98,7 @@ class ApiClient {
         error.type == DioExceptionType.connectionTimeout ||
         error.type == DioExceptionType.receiveTimeout) {
       return const ApiException(
-        'Unable to reach Zeere. Check your connection and try again.',
+        'Unable to reach Zeera. Check your connection and try again.',
       );
     }
     return const ApiException('Something went wrong. Please try again.');

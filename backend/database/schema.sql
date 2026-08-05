@@ -3,14 +3,16 @@ USE zeere;
 
 CREATE TABLE IF NOT EXISTS users (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  provider_id BIGINT UNSIGNED NULL,
   role ENUM('ADMIN','CUSTOMER','PROVIDER') NOT NULL,
   full_name VARCHAR(150) NOT NULL,
   phone VARCHAR(20) NOT NULL,
+  avatar_url VARCHAR(255) NULL,
   password_hash VARCHAR(255) NOT NULL,
   is_active BOOLEAN NOT NULL DEFAULT TRUE,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  UNIQUE KEY uq_users_phone (phone), KEY idx_users_role (role), KEY idx_users_phone (phone)
+  UNIQUE KEY uq_users_phone (phone), KEY idx_users_role (role), KEY idx_users_phone (phone), KEY idx_users_provider (provider_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS refresh_tokens (
@@ -59,7 +61,7 @@ CREATE TABLE IF NOT EXISTS safety_tips (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS weather_updates (
-  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, location VARCHAR(120) NOT NULL, temperature DECIMAL(6,2) NOT NULL, condition VARCHAR(120) NOT NULL,
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, location VARCHAR(120) NOT NULL, temperature DECIMAL(6,2) NOT NULL, `condition` VARCHAR(120) NOT NULL,
   description TEXT NOT NULL, humidity DECIMAL(5,2) NULL, wind_speed DECIMAL(6,2) NULL, weather_date DATETIME NOT NULL,
   icon VARCHAR(255) NULL, is_active BOOLEAN NOT NULL DEFAULT TRUE,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -79,7 +81,7 @@ CREATE TABLE IF NOT EXISTS offerings (
 CREATE TABLE IF NOT EXISTS bookings (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, booking_code VARCHAR(40) NOT NULL, customer_user_id BIGINT UNSIGNED NOT NULL,
   offering_id BIGINT UNSIGNED NOT NULL, scheduled_at DATETIME NOT NULL, currency ENUM('USD','LBP') NOT NULL, unit_price DECIMAL(15,2) NOT NULL,
-  participant_count INT NOT NULL, total_amount DECIMAL(15,2) NOT NULL, status ENUM('PENDING','CONFIRMED','CANCELLED','COMPLETED') NOT NULL DEFAULT 'PENDING',
+  participant_count INT NOT NULL, total_amount DECIMAL(15,2) NOT NULL, status ENUM('PENDING','CONFIRMED','CANCELLED','COMPLETED') NOT NULL DEFAULT 'CONFIRMED',
   notes TEXT NULL, created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   UNIQUE KEY uq_booking_code (booking_code), KEY idx_booking_customer (customer_user_id), KEY idx_booking_status (status), KEY idx_booking_scheduled (scheduled_at), KEY idx_booking_offering (offering_id),
   CONSTRAINT chk_booking_count CHECK (participant_count > 0), CONSTRAINT chk_booking_total CHECK (total_amount >= 0),
@@ -114,4 +116,24 @@ CREATE TABLE IF NOT EXISTS qr_scan_logs (
 
 CREATE TABLE IF NOT EXISTS app_settings (
   setting_key VARCHAR(100) PRIMARY KEY, setting_value TEXT NOT NULL, updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS restaurants (
+  id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  description TEXT NOT NULL,
+  cuisine_type VARCHAR(100) NOT NULL,
+  image VARCHAR(255) NOT NULL DEFAULT '/images/placeholder.svg',
+  opening_time VARCHAR(50) NULL,
+  closing_time VARCHAR(50) NULL,
+  location VARCHAR(255) NULL,
+  phone VARCHAR(50) NULL,
+  rating DECIMAL(3,1) DEFAULT 4.8,
+  price_range VARCHAR(10) DEFAULT '$$',
+  menu_items JSON NULL,
+  is_active BOOLEAN NOT NULL DEFAULT TRUE,
+  display_order INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  KEY idx_restaurants_active_order (is_active, display_order)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

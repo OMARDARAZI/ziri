@@ -7,7 +7,7 @@ import { ApiError } from '../api/apiError';
 import { Alert } from '../components/common/States';
 import { useAuth, useRequestedPath } from '../auth/AuthProvider';
 import type { DashboardRole } from '../auth/auth.types';
-import { Phone, Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
 
 const schema = z.object({
   phone: z.string().min(7, 'Phone number is required'),
@@ -32,8 +32,12 @@ export function LoginPage({ role }: { role: DashboardRole }) {
   });
 
   const onSubmit = async (values: Form) => {
+    const raw = values.phone.trim();
+    const formattedPhone = raw.startsWith('+')
+      ? raw
+      : `+961${raw.replace(/^0+/, '').replace(/[\s().-]/g, '')}`;
     try {
-      await login(role, values.phone, values.password);
+      await login(role, formattedPhone, values.password);
       navigate(
         requested === '/'
           ? role === 'ADMIN'
@@ -52,7 +56,7 @@ export function LoginPage({ role }: { role: DashboardRole }) {
   return (
     <>
       <div className="text-center mb-4">
-        <h1 className="h3 fw-800 text-navy mb-1">Zeere</h1>
+        <h1 className="h3 fw-800 text-navy mb-1">Zeera</h1>
         <span className="badge text-bg-warning px-2.5 py-1 text-uppercase tracking-wider font-size-075">
           {role === 'ADMIN' ? 'Admin Portal' : 'Provider Portal'}
         </span>
@@ -63,15 +67,16 @@ export function LoginPage({ role }: { role: DashboardRole }) {
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="d-flex flex-column gap-3">
         {/* Phone Input */}
         <div>
-          <label className="form-label" htmlFor="phone">Phone</label>
+          <label className="form-label" htmlFor="phone">Phone Number</label>
           <div className="input-group">
-            <span className="input-group-text bg-light border-end-0 text-muted">
-              <Phone size={16} />
+            <span className="input-group-text bg-light border-end-0 text-dark fw-600 gap-1.5" style={{ fontSize: '0.875rem' }}>
+              <span>🇱🇧 +961</span>
             </span>
             <input
               id="phone"
-              className={`form-control border-start-0 ps-0 ${errors.phone ? 'is-invalid' : ''}`}
-              placeholder="e.g. 70123456"
+              type="tel"
+              className={`form-control border-start-0 ps-2 ${errors.phone ? 'is-invalid' : ''}`}
+              placeholder="70 123 456"
               autoComplete="username"
               {...register('phone')}
             />

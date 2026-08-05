@@ -1,0 +1,59 @@
+<%- include('../partials/head') %>
+<main class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6">
+      <div class="card shadow-sm border-0 rounded-4 p-4 p-md-5">
+        <div class="text-center mb-4">
+          <div class="bg-danger bg-opacity-10 text-danger rounded-circle p-3 d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+            <i class="bi bi-person-x fs-2"></i>
+          </div>
+          <h1 class="h3 fw-bold mb-1">Zeera Account Deletion</h1>
+          <p class="text-muted small mb-0">Public Data & Account Removal Portal</p>
+        </div>
+
+        <% if (submitted) { %>
+          <div class="alert alert-success border-0 rounded-3 p-4 text-center">
+            <i class="bi bi-check-circle-fill fs-2 d-block text-success mb-2"></i>
+            <h5 class="fw-bold mb-2">Deletion Request Received</h5>
+            <p class="small text-secondary mb-0">
+              Account associated with <strong><%= phone %></strong> has been marked for permanent deletion.
+              Your active tokens have been revoked immediately.
+            </p>
+          </div>
+          <div class="text-center mt-3">
+            <a href="/privacy-policy" class="btn btn-outline-secondary btn-sm rounded-pill px-4">Back to Privacy Policy</a>
+          </div>
+        <% } else { %>
+          <% if (error) { %>
+            <div class="alert alert-danger border-0 rounded-3 p-3 mb-4 small"><%= error %></div>
+          <% } %>
+
+          <p class="text-secondary small mb-4">
+            If you wish to delete your Zeera account and associated personal data, please enter your registered Lebanese phone number below. 
+            Once processed, your account will be immediately deactivated and logged out across all mobile devices.
+          </p>
+
+          <form method="post" action="/delete-account">
+            <div class="mb-4">
+              <label class="form-label fw-bold small text-dark" for="phone">Registered Phone Number</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light border-end-0 text-secondary fw-semibold">🇱🇧 +961</span>
+                <input id="phone" name="phone" type="tel" class="form-control border-start-0 py-2.5" placeholder="70 123 456" required />
+              </div>
+              <div class="form-text small">Enter the phone number linked to your Zeera account.</div>
+            </div>
+
+            <button type="submit" class="btn btn-danger w-100 py-2.5 rounded-3 fw-bold">
+              Submit Account Deletion Request
+            </button>
+          </form>
+
+          <div class="text-center mt-4">
+            <a href="/privacy-policy" class="text-decoration-none text-muted small">&larr; Back to Privacy Policy</a>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</main>
+<%- include('../partials/foot') %>

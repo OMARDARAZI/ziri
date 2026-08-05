@@ -34,7 +34,7 @@ export function AuthLayout() {
         />
 
         <div className="mb-4">
-          <div className="fw-bold tracking-wider fs-4 text-white">ZEERE</div>
+          <div className="fw-bold tracking-wider fs-4 text-white">ZEERA</div>
         </div>
 
         <div style={{ zIndex: 1, maxWidth: '520px' }}>
@@ -47,7 +47,7 @@ export function AuthLayout() {
         </div>
 
         <div className="text-white-50 font-size-085" style={{ zIndex: 1 }}>
-          &copy; {new Date().getFullYear()} Zeere. All rights reserved.
+          &copy; {new Date().getFullYear()} Zeera. All rights reserved.
         </div>
       </div>
     </div>

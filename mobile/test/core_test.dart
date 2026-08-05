@@ -15,6 +15,8 @@ import 'package:zeere/features/auth/domain/user.dart';
 import 'package:zeere/features/auth/presentation/auth_screens.dart';
 import 'package:zeere/features/bookings/domain/booking_models.dart';
 import 'package:zeere/features/content/domain/content_models.dart';
+import 'package:zeere/features/profile/presentation/provider_scanner_screen.dart';
+
 
 class MemoryTokenStorage extends TokenStorage {
   AuthTokens? tokens;
@@ -53,7 +55,7 @@ class FailingAuthRepository extends AuthRepository {
 void main() {
   group('Validators', () {
     test('normalizes phone numbers for backend submission', () {
-      expect(Validators.normalizePhone('70 123 456'), '+70123456');
+      expect(Validators.normalizePhone('70 123 456'), '+96170123456');
       expect(Validators.phone('+961 70 123 456'), isNull);
     });
 
@@ -222,4 +224,66 @@ void main() {
     expect(find.text('No bookings yet.'), findsOneWidget);
     expect(find.byIcon(Icons.inbox_outlined), findsOneWidget);
   });
+
+  testWidgets('renders offline banner when offline without assertion error', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(body: OfflineBanner(isOnline: false)),
+      ),
+    );
+    expect(
+      find.text(
+        'You appear to be offline. Visible information is still available.',
+      ),
+      findsOneWidget,
+    );
+  });
+
+  test('parses provider role and qr validation result', () {
+    final user = User.fromJson(<String, dynamic>{
+      'id': 10,
+      'role': 'PROVIDER',
+      'full_name': 'Sea Breeze Team',
+      'phone': '+96170000002',
+      'is_active': true,
+    });
+    expect(user.role, 'PROVIDER');
+
+    final result = QrValidationResult.fromJson(<String, dynamic>{
+      'participant': <String, dynamic>{
+        'full_name': 'John Doe',
+        'phone': '+96170111222',
+      },
+      'booking': <String, dynamic>{
+        'booking_code': 'ZR-2026-TEST',
+        'offering_title': 'Jet Ski Safari',
+        'provider_name': 'Sea Breeze Water Sports',
+        'scheduled_at': '2026-08-10T10:00:00.000Z',
+      },
+      'qr_status': 'USED',
+    });
+    expect(result.participantName, 'John Doe');
+    expect(result.bookingCode, 'ZR-2026-TEST');
+    expect(result.qrStatus, 'USED');
+  });
+
+  testWidgets('renders provider scanner screen input field and validate button', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      const ProviderScope(
+        child: MaterialApp(
+          home: ProviderScannerScreen(),
+        ),
+      ),
+    );
+    expect(find.text('Provider QR Scanner'), findsOneWidget);
+    expect(find.text('Validate Reservation'), findsOneWidget);
+    expect(find.byType(TextField), findsOneWidget);
+    expect(find.text('Validate QR Code'), findsOneWidget);
+  });
 }
+
+

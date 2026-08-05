@@ -21,6 +21,8 @@ class ContentRepository {
       _list('/news', page, NewsArticle.fromJson);
   Future<PageResult<Event>> events({int page = 1}) =>
       _list('/events', page, Event.fromJson);
+  Future<PageResult<Restaurant>> restaurants({int page = 1}) =>
+      _list('/restaurants', page, Restaurant.fromJson);
   Future<PageResult<SafetyTip>> safetyTips({int page = 1}) =>
       _list('/safety-tips', page, SafetyTip.fromJson);
   Future<PageResult<Weather>> weather({int page = 1}) =>

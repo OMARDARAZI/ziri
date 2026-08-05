@@ -22,10 +22,20 @@ class ExploreRepository {
   Future<ProviderProfile> provider(int id) async =>
       ProviderProfile.fromJson(asMap((await _api.get('/providers/$id')).data));
 
-  Future<PageResult<Offering>> offerings({String? type, int page = 1}) async {
+  Future<PageResult<Offering>> offerings({
+    String? type,
+    String? search,
+    int page = 1,
+    int limit = 20,
+  }) async {
     final response = await _api.get(
       '/offerings',
-      query: <String, Object?>{'page': page, 'limit': 20, 'type': ?type},
+      query: <String, Object?>{
+        'page': page,
+        'limit': limit,
+        if (type != null && type.isNotEmpty) 'type': type,
+        if (search != null && search.trim().isNotEmpty) 'search': search.trim(),
+      },
     );
     return PageResult(
       items: asMapList(

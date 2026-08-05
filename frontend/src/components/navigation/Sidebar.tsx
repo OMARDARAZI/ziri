@@ -5,6 +5,7 @@ import {
   BookOpen,
   Newspaper,
   CalendarDays,
+  UtensilsCrossed,
   ShieldCheck,
   CloudSun,
   Building2,
@@ -38,8 +39,8 @@ const adminGroups = [
       { path: 'stories', label: 'Stories', icon: BookOpen },
       { path: 'news', label: 'News', icon: Newspaper },
       { path: 'events', label: 'Events', icon: CalendarDays },
-      { path: 'safety-tips', label: 'Safety tips', icon: ShieldCheck },
-      { path: 'weather', label: 'Weather', icon: CloudSun }
+      { path: 'restaurants', label: 'Restaurants', icon: UtensilsCrossed },
+      { path: 'safety-tips', label: 'Safety tips', icon: ShieldCheck }
     ]
   },
   {
@@ -51,8 +52,12 @@ const adminGroups = [
     ]
   },
   {
-    title: 'Customers',
-    links: [{ path: 'customers', label: 'Customers', icon: Users }]
+    title: 'User Management',
+    links: [
+      { path: 'users', label: 'All Users', icon: Users },
+      { path: 'customers', label: 'Customers', icon: Users },
+      { path: 'provider-users', label: 'Provider Users', icon: UserCog }
+    ]
   },
   {
     title: 'Operations',
@@ -104,7 +109,10 @@ export function Sidebar({ role, isOpen = false, onClose }: SidebarProps) {
       <aside className={`app-sidebar ${isOpen ? 'open' : ''}`}>
         <div className="sidebar-header">
           <NavLink to={`/${role}/dashboard`} className="sidebar-brand" onClick={onClose}>
-            <span>Zeere</span>
+            <div className="sidebar-brand-icon">
+              <Compass size={20} />
+            </div>
+            <span>Zeera</span>
             <span className="sidebar-portal-badge">{role}</span>
           </NavLink>
           {onClose && (
@@ -146,8 +154,8 @@ export function Sidebar({ role, isOpen = false, onClose }: SidebarProps) {
           <div className="user-summary">
             <div className="user-avatar">{initial}</div>
             <div className="user-details">
-              <span className="user-name">{user?.full_name || 'Staff'}</span>
-              <span className="user-role">{role}</span>
+              <span className="user-name">{user?.full_name || 'Super Admin'}</span>
+              <span className="user-role">{role} Portal</span>
             </div>
             <button
               className="btn btn-link text-white-50 p-0 ms-auto hover-white"

@@ -76,6 +76,87 @@ class Event {
   final String? location;
 }
 
+class MenuItem {
+  const MenuItem({
+    required this.name,
+    required this.description,
+    required this.price,
+    required this.category,
+    this.image,
+  });
+
+  factory MenuItem.fromJson(Map<String, dynamic> json) => MenuItem(
+    name: '${json['name'] ?? ''}',
+    description: '${json['description'] ?? ''}',
+    price: '${json['price'] ?? ''}',
+    category: '${json['category'] ?? 'Menu'}',
+    image: json['image'] as String?,
+  );
+
+  final String name;
+  final String description;
+  final String price;
+  final String category;
+  final String? image;
+}
+
+class Restaurant {
+  const Restaurant({
+    required this.id,
+    required this.name,
+    required this.description,
+    required this.cuisineType,
+    required this.image,
+    required this.openingTime,
+    required this.closingTime,
+    required this.location,
+    required this.phone,
+    required this.rating,
+    required this.priceRange,
+    required this.menuItems,
+  });
+
+  factory Restaurant.fromJson(Map<String, dynamic> json) {
+    List<MenuItem> items = <MenuItem>[];
+    if (json['menu_items'] != null) {
+      if (json['menu_items'] is List) {
+        items = (json['menu_items'] as List)
+            .whereType<Map>()
+            .map((Map e) => MenuItem.fromJson(Map<String, dynamic>.from(e)))
+            .toList();
+      }
+    }
+
+    return Restaurant(
+      id: int.tryParse('${json['id']}') ?? 0,
+      name: '${json['name'] ?? ''}',
+      description: '${json['description'] ?? ''}',
+      cuisineType: '${json['cuisine_type'] ?? ''}',
+      image: json['image'] as String?,
+      openingTime: json['opening_time'] as String?,
+      closingTime: json['closing_time'] as String?,
+      location: json['location'] as String?,
+      phone: json['phone'] as String?,
+      rating: double.tryParse('${json['rating']}') ?? 4.8,
+      priceRange: '${json['price_range'] ?? '\$\$'}',
+      menuItems: items,
+    );
+  }
+
+  final int id;
+  final String name;
+  final String description;
+  final String cuisineType;
+  final String? image;
+  final String? openingTime;
+  final String? closingTime;
+  final String? location;
+  final String? phone;
+  final double rating;
+  final String priceRange;
+  final List<MenuItem> menuItems;
+}
+
 class SafetyTip {
   const SafetyTip({
     required this.id,

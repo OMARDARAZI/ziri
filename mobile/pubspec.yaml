@@ -19,7 +19,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.11.1
+  sdk: ^3.10.0
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -43,7 +43,9 @@ dependencies:
   qr_flutter: ^4.1.0
   share_plus: ^12.0.1
   url_launcher: ^6.3.2
-  json_annotation: ^4.12.0
+  json_annotation: ^4.9.0
+  video_player: ^2.9.2
+  image_picker: ^1.1.2
 
 dev_dependencies:
   flutter_test:
@@ -61,6 +63,14 @@ dev_dependencies:
   json_serializable: ^6.11.2
   mocktail: ^1.0.4
   http_mock_adapter: ^0.6.1
+  rename: ^3.0.2
+  flutter_launcher_icons: ^0.14.3
+
+flutter_launcher_icons:
+  android: "zeere_icon"
+  ios: true
+  image_path: "assets/brand/zeera_logo.jpeg"
+  min_sdk_android: 21
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -75,6 +85,9 @@ flutter:
 
   assets:
     - assets/brand/
+    - assets/brand/zeera_logo.jpeg
+    - assets/brand/zinglow_logo.png
+    - assets/brand/zinglow_icon.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

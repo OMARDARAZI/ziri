@@ -7,38 +7,191 @@ import '../../../core/api/api_exception.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/utils/validators.dart';
 
-class SplashScreen extends ConsumerWidget {
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) => const Scaffold(
-    backgroundColor: ZeereTheme.navy,
-    body: Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Text(
-            'Z',
-            style: TextStyle(
-              color: ZeereTheme.turquoise,
-              fontWeight: FontWeight.w800,
-              fontSize: 88,
-            ),
-          ),
-          Text(
-            'ZEERE',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w700,
-              letterSpacing: 6,
-              fontSize: 22,
-            ),
-          ),
-          SizedBox(height: 24),
-          CircularProgressIndicator(color: ZeereTheme.turquoise),
-        ],
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends ConsumerState<SplashScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _fadeAnimation;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    );
+    _fadeAnimation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeIn,
+    );
+    _scaleAnimation = Tween<double>(begin: 0.85, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeOutBack,
       ),
-    ),
-  );
+    );
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: <Color>[
+              Color(0xFF0F172A),
+              Color(0xFF1B3A5C),
+              Color(0xFF0A192F),
+            ],
+          ),
+        ),
+        child: Stack(
+          children: <Widget>[
+            // Ambient Radial Glow
+            Center(
+              child: Container(
+                width: 280,
+                height: 280,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: <Color>[
+                      const Color(0xFF2E7D9A).withOpacity(0.25),
+                      Colors.transparent,
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            // Content
+            SafeArea(
+              child: Center(
+                child: FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: ScaleTransition(
+                    scale: _scaleAnimation,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        // Brand Icon Container
+                        Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Colors.white.withOpacity(0.08),
+                            border: Border.all(
+                              color: const Color(0xFFF4C430).withOpacity(0.6),
+                              width: 2,
+                            ),
+                            boxShadow: <BoxShadow>[
+                              BoxShadow(
+                                color: const Color(0xFF2E7D9A).withOpacity(0.3),
+                                blurRadius: 30,
+                                spreadRadius: 5,
+                              ),
+                            ],
+                          ),
+                          child: ClipOval(
+                            child: Image.asset(
+                              'assets/brand/zeera_logo.jpeg',
+                              width: 80,
+                              height: 80,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return const Icon(
+                                  Icons.explore,
+                                  size: 80,
+                                  color: Color(0xFFF4C430),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 28),
+
+                        // Title
+                        const Text(
+                          'ZEERA',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 32,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 8,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+
+                        // Tagline
+                        const Text(
+                          'ISLAND EXPERIENCES & SERVICES',
+                          style: TextStyle(
+                            color: Color(0xFFF4C430),
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 3,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            // Bottom loading indicator
+            Positioned(
+              bottom: 48,
+              left: 0,
+              right: 0,
+              child: Column(
+                children: <Widget>[
+                  const SizedBox(
+                    width: 32,
+                    height: 32,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Color(0xFF2E7D9A),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'DISCOVER BCHARRE',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.5),
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 2.5,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -51,6 +204,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _phone = TextEditingController();
   final _password = TextEditingController();
+  CountryCode _selectedCountry = defaultCountryCodes.first;
   bool _loading = false;
   bool _obscure = true;
 
@@ -65,9 +219,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _loading = true);
     try {
+      final fullPhone = Validators.normalizePhone(_phone.text, countryCode: _selectedCountry.code);
       await ref
           .read(sessionProvider.notifier)
-          .login(phone: _phone.text, password: _password.text);
+          .login(phone: fullPhone, password: _password.text);
       if (mounted) context.go(_safeDestination());
     } on ApiException catch (error) {
       if (mounted) {
@@ -96,14 +251,40 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          TextFormField(
-            controller: _phone,
-            keyboardType: TextInputType.phone,
-            validator: Validators.phone,
-            decoration: const InputDecoration(
-              labelText: 'Phone number',
-              hintText: '+961 70 123 456',
-            ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Container(
+                height: 56,
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  border: Border.all(color: Colors.grey.shade300),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                alignment: Alignment.center,
+                child: const Text(
+                  '🇱🇧 +961',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13,
+                    color: Color(0xFF1B3A5C),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: TextFormField(
+                  controller: _phone,
+                  keyboardType: TextInputType.phone,
+                  validator: Validators.phone,
+                  decoration: const InputDecoration(
+                    labelText: 'Phone number',
+                    hintText: '70 123 456',
+                  ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 16),
           TextFormField(
@@ -140,7 +321,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           const SizedBox(height: 12),
           TextButton(
             onPressed: () => context.go('/register'),
-            child: const Text('New to Zeere? Create an account'),
+            child: const Text('New to Zeera? Create an account'),
           ),
         ],
       ),
@@ -160,6 +341,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _phone = TextEditingController();
   final _password = TextEditingController();
   final _confirm = TextEditingController();
+  CountryCode _selectedCountry = defaultCountryCodes.first;
   bool _loading = false;
 
   @override
@@ -175,11 +357,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _loading = true);
     try {
+      final fullPhone = Validators.normalizePhone(_phone.text, countryCode: _selectedCountry.code);
       await ref
           .read(sessionProvider.notifier)
           .register(
             name: _name.text,
-            phone: _phone.text,
+            phone: fullPhone,
             password: _password.text,
             confirmation: _confirm.text,
           );
@@ -198,7 +381,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   @override
   Widget build(BuildContext context) => _AuthScaffold(
     title: 'Create your account',
-    subtitle: 'Book trusted island services and activities with Zeere.',
+    subtitle: 'Book trusted island services and activities with Zeera.',
     child: Form(
       key: _formKey,
       child: Column(
@@ -212,14 +395,40 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
             decoration: const InputDecoration(labelText: 'Full name'),
           ),
           const SizedBox(height: 16),
-          TextFormField(
-            controller: _phone,
-            keyboardType: TextInputType.phone,
-            validator: Validators.phone,
-            decoration: const InputDecoration(
-              labelText: 'Phone number',
-              hintText: '+961 70 123 456',
-            ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Container(
+                height: 56,
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  border: Border.all(color: Colors.grey.shade300),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                alignment: Alignment.center,
+                child: const Text(
+                  '🇱🇧 +961',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13,
+                    color: Color(0xFF1B3A5C),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: TextFormField(
+                  controller: _phone,
+                  keyboardType: TextInputType.phone,
+                  validator: Validators.phone,
+                  decoration: const InputDecoration(
+                    labelText: 'Phone number',
+                    hintText: '70 123 456',
+                  ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 16),
           TextFormField(

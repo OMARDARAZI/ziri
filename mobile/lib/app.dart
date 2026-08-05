@@ -9,7 +9,7 @@ class ZeereApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) => MaterialApp.router(
-    title: 'Zeere',
+    title: 'Zeera',
     debugShowCheckedModeBanner: false,
     theme: ZeereTheme.light,
     routerConfig: ref.watch(routerProvider),

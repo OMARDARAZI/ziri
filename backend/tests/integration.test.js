@@ -45,7 +45,7 @@ if (!enabled) {
   });
   test('Dashboard search resources and invalid dashboard actions never return server errors', async () => {
     const agent = request.agent(app); const login = await agent.post('/api/v1/dashboard/admin/login').send({ phone: '+96170000001', password: 'Admin123!' }).expect(200); const csrf = login.body.data.csrf_token;
-    for (const resource of ['stories','news','events','safety-tips','weather','providers','provider-users','offerings','customers','bookings','participants','qr-codes','scan-logs','settings']) await agent.get(`/api/v1/dashboard/admin/${resource}`).query({ search: 'missing' }).expect(200);
+    for (const resource of ['stories','news','events','safety-tips','weather','providers','provider-users','offerings','customers','users','bookings','participants','qr-codes','scan-logs','settings']) await agent.get(`/api/v1/dashboard/admin/${resource}`).query({ search: 'missing' }).expect(200);
     const invalidId = await agent.get('/api/v1/dashboard/admin/bookings/not-an-id').expect(422); assert.equal(invalidId.body.code,'VALIDATION_ERROR');
     const invalidAction = await agent.post('/api/v1/dashboard/admin/bookings/99999/action').set('X-CSRF-Token',csrf).send({ action: 'archive' }).expect(422); assert.equal(invalidAction.body.code,'VALIDATION_ERROR');
     const invalidProvider = await agent.post('/api/v1/dashboard/admin/providers').set('X-CSRF-Token',csrf).send({ user_id: 99999, business_name: 'Invalid Provider', phone: '+96179999999', is_active: true }).expect(422); assert.equal(invalidProvider.body.code,'VALIDATION_ERROR');

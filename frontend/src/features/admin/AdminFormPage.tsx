@@ -6,54 +6,96 @@ import { ApiError } from '../../api/apiError';
 import { getResource, related, saveResource } from './admin.api';
 import { meta, type Field } from './resourceMeta';
 import { ErrorState, LoadingState } from '../../components/common/States';
-import { Save, ArrowLeft, UploadCloud, X, Loader2 } from 'lucide-react';
+import { SearchableSelect, type SelectOption } from '../../components/common/SearchableSelect';
+import { Save, ArrowLeft, UploadCloud, X, Loader2, Image as ImageIcon } from 'lucide-react';
 
 type Values = Record<string, unknown>;
+
+function fullUrl(path?: string | null) {
+  if (!path || typeof path !== 'string') return null;
+  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('blob:')) return path;
+  return `http://localhost:3000${path.startsWith('/') ? '' : '/'}${path}`;
+}
 
 function inputValue(value: unknown) {
   return typeof value === 'string' || typeof value === 'number' ? String(value) : '';
 }
 
-function FileField({ field, setValue }: { field: Field; setValue: (name: string, value: File) => void }) {
-  const [preview, setPreview] = useState<string | null>(null);
-  const [fileName, setFileName] = useState<string | null>(null);
+const ALLOWED_TYPES = [
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'video/mp4',
+  'video/webm',
+  'video/quicktime'
+];
+
+function FileField({
+  field,
+  setValue,
+  initialUrl
+}: {
+  field: Field;
+  setValue: (name: string, value: File | null) => void;
+  initialUrl?: string | null;
+}) {
+  const [preview, setPreview] = useState<string | null>(fullUrl(initialUrl));
+  const [fileName, setFileName] = useState<string | null>(initialUrl ? 'Existing File' : null);
+  const [isVideo, setIsVideo] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (initialUrl && !preview) {
+      const url = fullUrl(initialUrl);
+      setPreview(url);
+      setFileName('Existing Uploaded File');
+      const isVid = typeof initialUrl === 'string' && (initialUrl.toLowerCase().endsWith('.mp4') || initialUrl.toLowerCase().endsWith('.mov') || initialUrl.toLowerCase().endsWith('.webm'));
+      setIsVideo(isVid);
+    }
+  }, [initialUrl]);
 
   useEffect(() => {
     return () => {
-      if (preview) URL.revokeObjectURL(preview);
+      if (preview && preview.startsWith('blob:')) URL.revokeObjectURL(preview);
     };
   }, [preview]);
 
   const handleFile = (file: File) => {
-    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) return;
-    if (file.size > 5 * 1024 * 1024) return;
+    const isVid = file.type.startsWith('video/') || file.name.toLowerCase().endsWith('.mp4') || file.name.toLowerCase().endsWith('.mov') || file.name.toLowerCase().endsWith('.webm');
+    if (!isVid && !ALLOWED_TYPES.includes(file.type)) return;
+    if (file.size > 100 * 1024 * 1024) return;
     setValue(field.name, file);
     setFileName(file.name);
-    if (preview) URL.revokeObjectURL(preview);
+    if (preview && preview.startsWith('blob:')) URL.revokeObjectURL(preview);
+    setIsVideo(isVid);
     setPreview(URL.createObjectURL(file));
   };
 
   const handleClear = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (preview && preview.startsWith('blob:')) URL.revokeObjectURL(preview);
     setPreview(null);
     setFileName(null);
-    // Note: React Hook Form will handle empty value on submit or backend error
+    setIsVideo(false);
+    setValue(field.name, null);
   };
 
   return (
-    <div className="col-md-6 mb-3">
-      <label className="form-label">{field.label}</label>
-      
+    <div className="col-md-12 mb-4">
+      <label className="form-label font-weight-semibold text-dark mb-2" style={{ fontWeight: 700, fontSize: '0.9rem', color: '#0F172A' }}>{field.label}</label>
+
       {!preview ? (
-        <div className="upload-dropzone">
-          <UploadCloud className="upload-icon" />
-          <span className="fw-600 text-navy font-size-09">Drag & drop or Click to upload</span>
-          <span className="text-muted font-size-075">Supported formats: JPG, PNG, WEBP (Max 5MB)</span>
+        <div
+          className="upload-dropzone p-4 text-center border-2 border-dashed rounded-4 position-relative"
+          style={{ borderColor: '#CBD5E1', backgroundColor: '#F8FAFC', cursor: 'pointer', borderRadius: '1rem' }}
+        >
+          <UploadCloud className="upload-icon mx-auto mb-2 text-success" size={32} style={{ color: '#14532D' }} />
+          <span className="fw-700 text-dark d-block mb-1" style={{ fontSize: '0.92rem' }}>Drag & drop or Click to upload</span>
+          <span className="text-secondary d-block" style={{ fontSize: '0.78rem' }}>Supported formats: MP4, MOV, WEBM, JPG, PNG, WEBP (Max 100MB)</span>
           <input
             className="position-absolute top-0 start-0 w-100 h-100 opacity-0 cursor-pointer"
             type="file"
-            accept="image/jpeg,image/png,image/webp"
+            accept="image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime"
             onChange={(event) => {
               const file = event.target.files?.[0];
               if (file) handleFile(file);
@@ -61,20 +103,24 @@ function FileField({ field, setValue }: { field: Field; setValue: (name: string,
           />
         </div>
       ) : (
-        <div className="upload-preview-container">
-          <img className="upload-preview-image" src={preview} alt={`${field.label} preview`} />
+        <div className="d-flex align-items-center gap-3 p-3 border rounded-4 bg-light position-relative" style={{ borderColor: '#E2E8F0', borderRadius: '1rem' }}>
+          {isVideo ? (
+            <video className="rounded-3" src={`${preview}#t=0.001`} preload="metadata" controls style={{ width: 100, height: 80, objectFit: 'cover' }} />
+          ) : (
+            <img className="rounded-3" src={preview} alt={`${field.label} preview`} style={{ width: 100, height: 80, objectFit: 'cover' }} />
+          )}
           <div className="flex-grow-1 min-w-0">
-            <span className="fw-600 text-navy d-block text-truncate font-size-085">{fileName || 'Selected Image'}</span>
-            <span className="text-muted font-size-075">Ready to upload</span>
+            <span className="fw-700 text-dark d-block text-truncate mb-1" style={{ fontSize: '0.9rem' }}>{fileName || 'Uploaded Media'}</span>
+            <span className="text-success fw-600 font-size-075" style={{ color: '#14532D' }}>✓ Media Loaded</span>
           </div>
           <button
             type="button"
             className="btn btn-outline-danger btn-sm p-1.5 rounded-circle"
             onClick={handleClear}
-            aria-label="Remove image"
-            style={{ width: 28, height: 28, minHeight: 'unset' }}
+            aria-label="Remove file"
+            style={{ width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
           >
-            <X size={14} />
+            <X size={16} />
           </button>
         </div>
       )}
@@ -97,13 +143,14 @@ export function AdminFormPage() {
   const links = useQuery({
     queryKey: ['admin', 'related'],
     queryFn: related,
-    enabled: resource === 'providers' || resource === 'offerings'
+    enabled: ['providers', 'offerings', 'users', 'provider-users'].includes(resource)
   });
 
   const {
     register,
     handleSubmit,
     setValue,
+    watch,
     reset,
     setError,
     formState: { errors, isSubmitting }
@@ -174,32 +221,42 @@ export function AdminFormPage() {
     const isCheckbox = definition.type === 'checkbox';
     
     if (definition.type === 'file') {
+      const existingUrl = (
+        item.data?.[definition.name] ||
+        item.data?.media_url ||
+        item.data?.image_url ||
+        item.data?.cover_image_url ||
+        item.data?.logo_url ||
+        item.data?.icon_url
+      ) as string | undefined;
+
       return (
         <FileField
           key={definition.name}
           field={definition}
-          setValue={(name, value) => setValue(name, value)}
+          setValue={(name, value) => setValue(name, value as any)}
+          initialUrl={existingUrl}
         />
       );
     }
 
     return (
-      <div className={isTextArea ? 'col-12 mb-3' : 'col-md-6 mb-3'} key={definition.name}>
+      <div className={isTextArea ? 'col-12 mb-3.5' : 'col-md-6 mb-3.5'} key={definition.name}>
         {isCheckbox ? (
-          <div className="form-check mt-4.5">
+          <div className="form-check mt-3">
             <input
               className="form-check-input"
               type="checkbox"
               id={definition.name}
               {...register(definition.name)}
             />
-            <label className="form-check-label" htmlFor={definition.name}>
+            <label className="form-check-label fw-600 text-dark" htmlFor={definition.name}>
               {definition.label}
             </label>
           </div>
         ) : (
           <div className="w-100">
-            <label className="form-label d-flex justify-content-between" htmlFor={definition.name}>
+            <label className="form-label fw-700 text-dark mb-1.5" htmlFor={definition.name} style={{ fontSize: '0.88rem' }}>
               <span>
                 {definition.label}
                 {definition.required && <span className="text-danger ms-1">*</span>}
@@ -209,43 +266,51 @@ export function AdminFormPage() {
             {definition.type === 'textarea' ? (
               <textarea
                 id={definition.name}
-                className={`form-control ${errors[definition.name] ? 'is-invalid' : ''}`}
+                className={`form-control rounded-3 ${errors[definition.name] ? 'is-invalid' : ''}`}
                 rows={4}
                 {...register(definition.name)}
+                style={{ borderColor: '#CBD5E1' }}
               />
-            ) : definition.type === 'select' ? (
-              <select
-                id={definition.name}
-                className={`form-select ${errors[definition.name] ? 'is-invalid' : ''}`}
-                {...register(definition.name)}
-              >
-                <option value="">Choose...</option>
-                {definition.name === 'provider_id' &&
-                  links.data?.providers.map((row) => (
-                    <option key={String(row.id)} value={String(row.id)}>
-                      {String(row.business_name)}
-                    </option>
-                  ))}
-                {definition.name === 'user_id' &&
-                  links.data?.provider_users.map((row) => (
-                    <option key={String(row.id)} value={String(row.id)}>
-                      {String(row.full_name)} — {String(row.phone)}
-                    </option>
-                  ))}
-                {definition.options?.map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            ) : (
+            ) : definition.type === 'select' ? (() => {
+              let selectOptions: SelectOption[] = [];
+              if (definition.name === 'provider_id') {
+                selectOptions = (links.data?.providers || []).map((row) => ({
+                  value: String(row.id),
+                  label: String(row.business_name)
+                }));
+              } else if (definition.name === 'user_id') {
+                selectOptions = (links.data?.provider_users || []).map((row) => ({
+                  value: String(row.id),
+                  label: String(row.full_name),
+                  sublabel: String(row.phone)
+                }));
+              } else if (definition.options) {
+                selectOptions = definition.options.map((option) => ({
+                  value: option,
+                  label: option
+                }));
+              }
+              const currentValue = String(watch(definition.name) ?? item.data?.[definition.name] ?? '');
+              return (
+                <SearchableSelect
+                  id={definition.name}
+                  name={definition.name}
+                  value={currentValue}
+                  onChange={(val) => setValue(definition.name, val, { shouldValidate: true })}
+                  options={selectOptions}
+                  placeholder={`Select ${definition.label.toLowerCase()}...`}
+                  error={Boolean(errors[definition.name])}
+                />
+              );
+            })() : (
               <input
                 id={definition.name}
-                className={`form-control ${errors[definition.name] ? 'is-invalid' : ''}`}
+                className={`form-control rounded-3 ${errors[definition.name] ? 'is-invalid' : ''}`}
                 type={definition.type}
                 step={definition.type === 'number' ? 'any' : undefined}
                 {...register(definition.name)}
                 defaultValue={inputValue(item.data?.[definition.name])}
+                style={{ borderColor: '#CBD5E1' }}
               />
             )}
           </div>
@@ -258,25 +323,25 @@ export function AdminFormPage() {
   };
 
   return (
-    <>
+    <div className="animate-fade-in-up">
       {/* Header */}
       <div className="d-flex align-items-center justify-content-between mb-4">
-        <div className="d-flex align-items-center gap-2">
-          <Link className="btn btn-outline-secondary btn-sm px-2.5 py-1.5" to={`/admin/${resource}`} aria-label="Cancel">
-            <ArrowLeft size={16} />
+        <div className="d-flex align-items-center gap-3">
+          <Link className="btn btn-outline-secondary rounded-circle d-flex align-items-center justify-content-center p-0" style={{ width: 38, height: 38 }} to={`/admin/${resource}`} aria-label="Cancel">
+            <ArrowLeft size={18} />
           </Link>
           <div>
-            <h1 className="h3 mb-0 text-navy fw-800">
+            <h1 className="h3 mb-0 text-dark fw-800" style={{ color: '#0F172A' }}>
               {id ? 'Edit' : 'New'} {descriptor.title}
             </h1>
-            <p className="text-muted font-size-09 mb-0">Fill in the options to update or register records.</p>
+            <p className="text-secondary font-size-09 mb-0" style={{ color: '#64748B' }}>Configure information and upload media for {descriptor.title.toLowerCase()}.</p>
           </div>
         </div>
       </div>
 
       {/* Form Content */}
-      <form className="card border-0 shadow-sm" onSubmit={handleSubmit(onSubmit)} noValidate>
-        <div className="card-body p-4">
+      <form className="card border p-4 shadow-sm" style={{ borderRadius: '1.25rem', borderColor: '#E2E8F0', backgroundColor: '#FFFFFF' }} onSubmit={handleSubmit(onSubmit)} noValidate>
+        <div className="card-body p-2">
           <div className="row">
             {descriptor.fields.map(renderField)}
           </div>
@@ -289,12 +354,13 @@ export function AdminFormPage() {
         </div>
 
         {/* Footer Actions */}
-        <div className="card-footer bg-light border-top-0 px-4 py-3 d-flex justify-content-end gap-2">
-          <Link className="btn btn-outline-secondary font-size-095" to={`/admin/${resource}`}>
+        <div className="border-top pt-4 mt-2 d-flex justify-content-end gap-2.5" style={{ borderColor: '#F1F5F9' }}>
+          <Link className="btn btn-light rounded-pill px-4 py-2 font-weight-semibold" style={{ borderColor: '#E2E8F0' }} to={`/admin/${resource}`}>
             Cancel
           </Link>
           <button
-            className="btn btn-primary d-flex align-items-center gap-2 font-size-095"
+            className="btn text-white rounded-pill px-4 py-2 fw-700 d-inline-flex align-items-center gap-2 shadow-sm"
+            style={{ backgroundColor: '#14532D', border: 'none' }}
             type="submit"
             disabled={isSubmitting || mutation.isPending}
           >
@@ -312,6 +378,6 @@ export function AdminFormPage() {
           </button>
         </div>
       </form>
-    </>
+    </div>
   );
 }

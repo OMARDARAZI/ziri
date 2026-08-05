@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:video_player/video_player.dart';
 
 import '../theme/app_theme.dart';
 import '../utils/image_url.dart';
@@ -22,6 +23,20 @@ class NetworkImageBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isVid = isVideoUrl(image);
+    if (isVid && image != null && image!.isNotEmpty) {
+      return Semantics(
+        image: true,
+        label: label,
+        child: VideoFrameThumbnail(
+          videoUrl: image!,
+          height: height,
+          width: width,
+          fit: fit,
+        ),
+      );
+    }
+
     final url = resolveImageUrl(image);
     if (url == null) return _fallback();
     return Semantics(
@@ -47,6 +62,105 @@ class NetworkImageBox extends StatelessWidget {
       child: Center(child: Icon(Icons.image_outlined, color: ZeereTheme.teal)),
     ),
   );
+}
+
+class VideoFrameThumbnail extends StatefulWidget {
+  const VideoFrameThumbnail({
+    super.key,
+    required this.videoUrl,
+    this.height,
+    this.width,
+    this.fit = BoxFit.cover,
+  });
+
+  final String videoUrl;
+  final double? height;
+  final double? width;
+  final BoxFit fit;
+
+  @override
+  State<VideoFrameThumbnail> createState() => _VideoFrameThumbnailState();
+}
+
+class _VideoFrameThumbnailState extends State<VideoFrameThumbnail> {
+  VideoPlayerController? _controller;
+  bool _isInitialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initVideo();
+  }
+
+  @override
+  void didUpdateWidget(VideoFrameThumbnail oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.videoUrl != widget.videoUrl) {
+      _controller?.dispose();
+      _controller = null;
+      _isInitialized = false;
+      _initVideo();
+    }
+  }
+
+  Future<void> _initVideo() async {
+    final resolved = resolveImageUrl(widget.videoUrl);
+    if (resolved == null || resolved.isEmpty) return;
+    try {
+      final controller = VideoPlayerController.networkUrl(Uri.parse(resolved));
+      await controller.initialize();
+      await controller.seekTo(const Duration(milliseconds: 200));
+      await controller.setVolume(0.0);
+      if (mounted) {
+        setState(() {
+          _controller = controller;
+          _isInitialized = true;
+        });
+      } else {
+        await controller.dispose();
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _isInitialized = false;
+        });
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isInitialized && _controller != null && _controller!.value.isInitialized) {
+      return SizedBox(
+        width: widget.width,
+        height: widget.height,
+        child: ClipRect(
+          child: FittedBox(
+            fit: widget.fit,
+            child: SizedBox(
+              width: _controller!.value.size.width > 0 ? _controller!.value.size.width : 100,
+              height: _controller!.value.size.height > 0 ? _controller!.value.size.height : 100,
+              child: VideoPlayer(_controller!),
+            ),
+          ),
+        ),
+      );
+    }
+    return SizedBox(
+      width: widget.width,
+      height: widget.height,
+      child: const ColoredBox(
+        color: ZeereTheme.aqua,
+        child: Center(child: Icon(Icons.videocam_rounded, color: ZeereTheme.teal)),
+      ),
+    );
+  }
 }
 
 class AsyncContent<T> extends StatelessWidget {
@@ -148,6 +262,6 @@ class OfflineBanner extends StatelessWidget {
             'You appear to be offline. Visible information is still available.',
           ),
           leading: Icon(Icons.wifi_off_outlined),
-          actions: <Widget>[],
+          actions: <Widget>[SizedBox.shrink()],
         );
 }

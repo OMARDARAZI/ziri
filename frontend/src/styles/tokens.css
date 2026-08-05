@@ -1,55 +1,61 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
-  /* Brand Colors */
-  --zeere-navy: #0B1F33;
-  --zeere-navy-light: #16344F;
-  --zeere-teal: #0B7F83;
-  --zeere-turquoise: #1CB5B0;
-  --zeere-aqua-soft: #DDF5F3;
-  --zeere-sand: #F5F0E8;
-  --zeere-coral: #F27A5E;
+  /* Brand Palette (User Specified) */
+  --zeere-navy: #1B3A5C;          /* Deep Navy - Headers, nav bar, primary buttons */
+  --zeere-navy-light: #2E7D9A;    /* Teal Blue - Links, active states, icons */
+  --zeere-teal: #2E7D9A;          /* Teal Blue - Primary Light */
+  --zeere-turquoise: #2E7D9A;     /* Primary Light hover */
+  --zeere-secondary: #3B7FBF;     /* Medium Blue - Secondary buttons, charts */
+  --zeere-accent: #F4C430;        /* Golden Yellow - Highlights, badges, CTAs */
+  --zeere-accent-warm: #F5941F;   /* Orange - Alerts, notifications, warm CTAs */
+  --zeere-coral: #E8483C;         /* Coral Red - Errors, destructive actions */
   
   /* UI Surface Colors */
-  --zeere-background: #F5F7FA;
-  --zeere-surface: #FFFFFF;
-  --zeere-border: #E5EAF0;
-  --zeere-text: #17212B;
-  --zeere-muted: #6B7785;
+  --zeere-background: #F4F6F9;    /* Off-white modern page background */
+  --zeere-surface: #FFFFFF;       /* White cards, panels */
+  --zeere-border: #D6E4EC;        /* Light Blue-Gray dividers, input borders */
+  --zeere-text: #1B3A5C;          /* Dark Navy body text, headings */
+  --zeere-text-dark: #1A1A1A;     /* Dark text */
+  --zeere-muted: #6B7A88;         /* Slate Gray secondary text, captions */
   
   /* Status Colors */
-  --zeere-success: #198754;
-  --zeere-success-soft: #D1E7DD;
-  --zeere-warning: #E5A100;
-  --zeere-warning-soft: #FFF3CD;
-  --zeere-danger: #D64545;
-  --zeere-danger-soft: #F8D7DA;
-  --zeere-info: #0D6EFD;
-  --zeere-info-soft: #CFF4FC;
+  --zeere-success: #2E7D9A;
+  --zeere-success-soft: #EBF5F8;
+  --zeere-warning: #F5941F;
+  --zeere-warning-soft: #FEF4E8;
+  --zeere-danger: #E8483C;
+  --zeere-danger-soft: #FDECEB;
+  --zeere-info: #3B7FBF;
+  --zeere-info-soft: #EBF2F9;
 
   /* Typography */
   --zeere-font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --zeere-font-fallback: 'Inter', system-ui, sans-serif;
 
-  /* Border Radiuses */
-  --zeere-radius-sm: 8px;
-  --zeere-radius-md: 10px;
-  --zeere-radius-lg: 14px;
-  --zeere-radius-xl: 18px;
+  /* Ultra-modern Bento Radiuses */
+  --zeere-radius-xs: 8px;
+  --zeere-radius-sm: 12px;
+  --zeere-radius-md: 18px;
+  --zeere-radius-lg: 24px;
+  --zeere-radius-xl: 32px;
+  --zeere-radius-pill: 999px;
 
-  /* Shadows */
-  --zeere-shadow-sm: 0 2px 8px rgba(11, 31, 51, 0.04);
-  --zeere-shadow-md: 0 4px 16px rgba(11, 31, 51, 0.08);
-  --zeere-shadow-lg: 0 8px 32px rgba(11, 31, 51, 0.12);
-  --zeere-shadow-inset: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+  /* Crisp Shadows & Floating Depths */
+  --zeere-shadow-sm: 0 4px 12px rgba(27, 58, 92, 0.03), 0 1px 3px rgba(27, 58, 92, 0.02);
+  --zeere-shadow-md: 0 8px 24px rgba(27, 58, 92, 0.06), 0 2px 6px rgba(27, 58, 92, 0.03);
+  --zeere-shadow-lg: 0 16px 40px rgba(27, 58, 92, 0.10), 0 4px 12px rgba(27, 58, 92, 0.04);
+  --zeere-shadow-hover: 0 20px 44px rgba(27, 58, 92, 0.12), 0 6px 16px rgba(27, 58, 92, 0.05);
 
-  /* Transitions */
-  --zeere-transition-fast: 0.15s ease;
-  --zeere-transition-normal: 0.25s ease;
-  --zeere-transition-slow: 0.35s ease;
+  /* Easing Functions & Smooth Animations */
+  --zeere-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --zeere-ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --zeere-transition-fast: 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  --zeere-transition-normal: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  --zeere-transition-slow: 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 
   /* Dimensions */
-  --zeere-sidebar-width: 260px;
-  --zeere-sidebar-collapsed-width: 76px;
-  --zeere-header-height: 70px;
+  --zeere-sidebar-width: 270px;
+  --zeere-sidebar-collapsed-width: 80px;
+  --zeere-header-height: 74px;
 }

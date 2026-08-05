@@ -107,3 +107,43 @@ class Booking {
   final String? notes;
   final List<BookingParticipant> participants;
 }
+
+class QrValidationResult {
+  const QrValidationResult({
+    required this.participantName,
+    required this.participantPhone,
+    required this.bookingCode,
+    required this.offeringTitle,
+    required this.providerName,
+    required this.scheduledAt,
+    required this.qrStatus,
+  });
+
+  factory QrValidationResult.fromJson(Map<String, dynamic> json) {
+    final participant = json['participant'] is Map
+        ? Map<String, dynamic>.from(json['participant'] as Map)
+        : <String, dynamic>{};
+    final booking = json['booking'] is Map
+        ? Map<String, dynamic>.from(json['booking'] as Map)
+        : <String, dynamic>{};
+
+    return QrValidationResult(
+      participantName: '${participant['full_name'] ?? ''}',
+      participantPhone: '${participant['phone'] ?? ''}',
+      bookingCode: '${booking['booking_code'] ?? ''}',
+      offeringTitle: '${booking['offering_title'] ?? ''}',
+      providerName: '${booking['provider_name'] ?? ''}',
+      scheduledAt: booking['scheduled_at'] as String?,
+      qrStatus: '${json['qr_status'] ?? 'USED'}',
+    );
+  }
+
+  final String participantName;
+  final String participantPhone;
+  final String bookingCode;
+  final String offeringTitle;
+  final String providerName;
+  final String? scheduledAt;
+  final String qrStatus;
+}
+
