@@ -6,11 +6,6 @@ import { StatusBadge } from '../../components/common/StatusBadge';
 import {
   ArrowUpRight,
   Plus,
-  CalendarCheck,
-  Compass,
-  Building2,
-  CalendarDays,
-  UtensilsCrossed,
   ScanLine,
   ChevronRight
 } from 'lucide-react';

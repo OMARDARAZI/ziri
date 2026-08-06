@@ -19,8 +19,7 @@ import {
   Star,
   UtensilsCrossed,
   Tag,
-  FileText,
-  Info
+  FileText
 } from 'lucide-react';
 import { dateTime } from '../../utils/format';
 
@@ -275,7 +274,7 @@ export function AdminDetailPage() {
               <span className="badge rounded-pill text-uppercase px-2.5 py-1 font-size-075 fw-700" style={{ backgroundColor: '#F1F5F9', color: '#475569', letterSpacing: '0.5px' }}>
                 {resource.replaceAll('-', ' ')}
               </span>
-              <StatusBadge value={data.is_active ?? data.status ?? true} />
+              <StatusBadge value={(data.is_active ?? data.status ?? true) as string | boolean | null | undefined} />
             </div>
             <h1 className="h3 mb-0 fw-800 text-dark mt-1" style={{ color: '#0F172A', letterSpacing: '-0.02em' }}>{title}</h1>
           </div>
@@ -297,14 +296,14 @@ export function AdminDetailPage() {
         {/* Left Column: Media Hero + Main Content */}
         <div className="col-lg-8">
           {/* Cover Media Card */}
-          {mediaUrl && (
+          {Boolean(mediaUrl) && (
             <div
               className="card border-0 shadow-sm overflow-hidden mb-4"
               style={{ borderRadius: '1.5rem', backgroundColor: '#0F172A', position: 'relative' }}
             >
               {isVideo ? (
                 <video
-                  src={mediaUrl}
+                  src={mediaUrl!}
                   controls
                   autoPlay
                   muted
@@ -313,7 +312,7 @@ export function AdminDetailPage() {
                 />
               ) : (
                 <img
-                  src={mediaUrl}
+                  src={mediaUrl!}
                   alt={title}
                   className="w-100"
                   style={{ maxHeight: 420, objectFit: 'cover', display: 'block' }}
@@ -395,14 +394,14 @@ export function AdminDetailPage() {
 
             <div className="d-flex flex-column gap-3.5">
               {/* Publication / Status badge */}
-              {(data.is_active !== undefined || data.status !== undefined) && (
+              {Boolean(data.is_active !== undefined || data.status !== undefined) && (
                 <div className="d-flex align-items-center justify-content-between">
                   <span className="text-secondary font-size-080 fw-600 text-uppercase">Status</span>
-                  <StatusBadge value={data.is_active ?? data.status ?? true} />
+                  <StatusBadge value={(data.is_active ?? data.status ?? true) as string | boolean | null | undefined} />
                 </div>
               )}
 
-              {dateVal && (
+              {Boolean(dateVal) && (
                 <div className="d-flex align-items-start gap-3">
                   <div className="rounded-circle p-2 d-flex align-items-center justify-content-center" style={{ backgroundColor: '#F1F5F9', width: 36, height: 36 }}>
                     <Calendar size={18} style={{ color: '#14532D' }} />
@@ -414,7 +413,7 @@ export function AdminDetailPage() {
                 </div>
               )}
 
-              {data.location && (
+              {Boolean(data.location) && (
                 <div className="d-flex align-items-start gap-3">
                   <div className="rounded-circle p-2 d-flex align-items-center justify-content-center" style={{ backgroundColor: '#F1F5F9', width: 36, height: 36 }}>
                     <MapPin size={18} style={{ color: '#14532D' }} />
@@ -426,7 +425,7 @@ export function AdminDetailPage() {
                 </div>
               )}
 
-              {data.cuisine_type && (
+              {Boolean(data.cuisine_type) && (
                 <div className="d-flex align-items-start gap-3">
                   <div className="rounded-circle p-2 d-flex align-items-center justify-content-center" style={{ backgroundColor: '#FFF7ED', width: 36, height: 36 }}>
                     <UtensilsCrossed size={18} style={{ color: '#C2410C' }} />
@@ -438,7 +437,7 @@ export function AdminDetailPage() {
                 </div>
               )}
 
-              {(data.opening_time || data.closing_time) && (
+              {Boolean(data.opening_time || data.closing_time) && (
                 <div className="d-flex align-items-start gap-3">
                   <div className="rounded-circle p-2 d-flex align-items-center justify-content-center" style={{ backgroundColor: '#F1F5F9', width: 36, height: 36 }}>
                     <Clock size={18} style={{ color: '#14532D' }} />
@@ -452,7 +451,7 @@ export function AdminDetailPage() {
                 </div>
               )}
 
-              {data.phone && (
+              {Boolean(data.phone) && (
                 <div className="d-flex align-items-start gap-3">
                   <div className="rounded-circle p-2 d-flex align-items-center justify-content-center" style={{ backgroundColor: '#F1F5F9', width: 36, height: 36 }}>
                     <Phone size={18} style={{ color: '#14532D' }} />
@@ -464,7 +463,7 @@ export function AdminDetailPage() {
                 </div>
               )}
 
-              {data.rating && (
+              {Boolean(data.rating) && (
                 <div className="d-flex align-items-start gap-3">
                   <div className="rounded-circle p-2 d-flex align-items-center justify-content-center" style={{ backgroundColor: '#FEFCE8', width: 36, height: 36 }}>
                     <Star size={18} style={{ color: '#EAB308' }} />
@@ -476,7 +475,7 @@ export function AdminDetailPage() {
                 </div>
               )}
 
-              {data.price_range && (
+              {Boolean(data.price_range) && (
                 <div className="d-flex align-items-start gap-3">
                   <div className="rounded-circle p-2 d-flex align-items-center justify-content-center" style={{ backgroundColor: '#F1F5F9', width: 36, height: 36 }}>
                     <Tag size={18} style={{ color: '#14532D' }} />
@@ -490,7 +489,7 @@ export function AdminDetailPage() {
             </div>
 
             {/* Custom attributes if any non-timestamp fields remain */}
-            {detailEntries.length > 0 && (
+            {Boolean(detailEntries.length > 0) && (
               <div className="pt-3 mt-3 border-top d-flex flex-column gap-2" style={{ borderColor: '#F1F5F9' }}>
                 {detailEntries.map(([key, item]) => (
                   <div key={key} className="d-flex align-items-center justify-content-between font-size-085">
@@ -502,21 +501,21 @@ export function AdminDetailPage() {
             )}
 
             {/* Timestamps footer */}
-            {(data.published_at || data.created_at || data.updated_at) && (
+            {Boolean(data.published_at || data.created_at || data.updated_at) && (
               <div className="pt-3 mt-3 border-top d-flex flex-column gap-1.5 font-size-080 text-muted" style={{ borderColor: '#F1F5F9' }}>
-                {data.published_at && (
+                {Boolean(data.published_at) && (
                   <div className="d-flex align-items-center justify-content-between">
                     <span>Published</span>
                     <span className="fw-600 text-dark">{dateTime(String(data.published_at))}</span>
                   </div>
                 )}
-                {data.created_at && (
+                {Boolean(data.created_at) && (
                   <div className="d-flex align-items-center justify-content-between">
                     <span>Created</span>
                     <span className="fw-600 text-dark">{dateTime(String(data.created_at))}</span>
                   </div>
                 )}
-                {data.updated_at && (
+                {Boolean(data.updated_at) && (
                   <div className="d-flex align-items-center justify-content-between">
                     <span>Last Updated</span>
                     <span className="fw-600 text-dark">{dateTime(String(data.updated_at))}</span>

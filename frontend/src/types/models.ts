@@ -1,5 +1,5 @@
 export type Role = 'ADMIN' | 'PROVIDER' | 'CUSTOMER';
-export interface User { id:number; role:Role; full_name:string; phone:string; is_active:boolean; created_at?:string; updated_at?:string; }
+export interface User { id:number; role:Role; full_name:string; phone:string; email?:string; is_active:boolean; created_at?:string; updated_at?:string; }
 export type RecordValue = string | number | boolean | null | undefined;
 export interface ResourceRecord { id?:number|string; [key:string]: unknown; }
 export interface BookingParticipant extends ResourceRecord { id:number; full_name:string; phone:string; is_owner:boolean; qr?:QrRecord; }

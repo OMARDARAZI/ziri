@@ -7,7 +7,6 @@ import {
   CalendarDays,
   UtensilsCrossed,
   ShieldCheck,
-  CloudSun,
   Building2,
   UserCog,
   Compass,

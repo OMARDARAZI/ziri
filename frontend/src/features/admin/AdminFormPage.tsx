@@ -7,7 +7,7 @@ import { getResource, related, saveResource } from './admin.api';
 import { meta, type Field } from './resourceMeta';
 import { ErrorState, LoadingState } from '../../components/common/States';
 import { SearchableSelect, type SelectOption } from '../../components/common/SearchableSelect';
-import { Save, ArrowLeft, UploadCloud, X, Loader2, Image as ImageIcon } from 'lucide-react';
+import { Save, ArrowLeft, UploadCloud, X, Loader2 } from 'lucide-react';
 
 type Values = Record<string, unknown>;
 

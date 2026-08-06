@@ -309,8 +309,8 @@ export function AdminListPage() {
           <div className="row g-4 mb-4">
             {items.map((row, index) => {
               const mediaUrl = getMediaUrl(row);
-              const title = row.title || row.business_name || row.name || `Record #${row.id}`;
-              const snippet = row.content || row.description || '';
+              const title = String(row.title || row.business_name || row.name || `Record #${row.id}`);
+              const snippet = String(row.content || row.description || '');
               const dateVal = row.story_time ?? row.published_at ?? row.event_date ?? row.created_at;
               const dateStr = typeof dateVal === 'string' || typeof dateVal === 'number' ? String(dateVal) : null;
               const isVideo = mediaUrl?.toLowerCase().endsWith('.mp4') || mediaUrl?.toLowerCase().endsWith('.mov') || mediaUrl?.toLowerCase().endsWith('.webm');
@@ -385,7 +385,7 @@ export function AdminListPage() {
                       {/* Top Badges */}
                       <div className="position-absolute d-flex align-items-center justify-content-between w-100 px-3" style={{ top: 12, right: 0 }}>
                         <div className="ms-auto">
-                          <StatusBadge value={row.is_active ?? row.status ?? true} />
+                          <StatusBadge value={(row.is_active ?? row.status ?? true) as string | boolean | null | undefined} />
                         </div>
                       </div>
                     </div>
@@ -400,7 +400,7 @@ export function AdminListPage() {
                         {title}
                       </h5>
 
-                      {snippet && (
+                      {Boolean(snippet) && (
                         <p className="text-secondary mb-3" style={{ color: '#475569', fontSize: '0.86rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', minHeight: 42, lineHeight: 1.5 }}>
                           {snippet}
                         </p>
