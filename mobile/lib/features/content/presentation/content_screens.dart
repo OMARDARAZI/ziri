@@ -60,13 +60,15 @@ class HomeScreen extends ConsumerWidget {
                   const SizedBox(height: 18),
                 ],
 
-                // Island Stories Section (Kept outside as circular bubbles row)
-                _SectionHeader(
-                  title: 'Island Stories',
-                ),
-                const SizedBox(height: 10),
-                _StoriesRow(stories: home.stories),
-                const SizedBox(height: 18),
+                // Island Stories Section (Only shown when stories are available)
+                if (home.stories.isNotEmpty) ...<Widget>[
+                  _SectionHeader(
+                    title: 'Island Stories',
+                  ),
+                  const SizedBox(height: 10),
+                  _StoriesRow(stories: home.stories),
+                  const SizedBox(height: 18),
+                ],
 
                 // Upcoming Reservation Ticket (If exists)
                 if (upcomingBooking != null) ...<Widget>[
@@ -333,14 +335,8 @@ class _StoriesRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final displayList = stories.isNotEmpty
-        ? stories
-        : const <Story>[
-            Story(id: 1, title: 'Sunrise', content: '', image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=600&auto=format&fit=crop&q=80', storyTime: null),
-            Story(id: 2, title: 'Blue Lagoon', content: '', image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=600&auto=format&fit=crop&q=80', storyTime: null),
-            Story(id: 3, title: 'Local Eats', content: '', image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&auto=format&fit=crop&q=80', storyTime: null),
-            Story(id: 4, title: 'Old Town', content: '', image: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?w=600&auto=format&fit=crop&q=80', storyTime: null),
-          ];
+    if (stories.isEmpty) return const SizedBox.shrink();
+    final displayList = stories;
 
     return SizedBox(
       height: 88,

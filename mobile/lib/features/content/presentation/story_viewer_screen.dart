@@ -277,7 +277,13 @@ class _SingleStoryItemState extends State<_SingleStoryItem>
                 BuildContext context,
                 Object error,
                 StackTrace? stackTrace,
-              ) => Container(color: Colors.black),
+              ) {
+                debugPrint('❌ Story image failed to load ($_resolvedUrl): $error');
+                return Image.network(
+                  'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80',
+                  fit: BoxFit.cover,
+                );
+              },
             ),
 
           if (_isLoading)
