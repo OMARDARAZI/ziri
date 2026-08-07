@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../../app_providers.dart';
 import '../../../core/api/api_exception.dart';
+import '../../../core/config/app_config.dart';
 import '../../../core/utils/image_url.dart';
 import '../../../core/utils/validators.dart';
 
@@ -18,8 +19,6 @@ class ProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _ProfileScreenState extends ConsumerState<ProfileScreen> {
-  bool _notificationsEnabled = true;
-
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(sessionProvider).user;
@@ -147,21 +146,34 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             child: Column(
               children: <Widget>[
                 SwitchListTile(
-                  value: _notificationsEnabled,
+                  value: user.notificationsEnabled,
                   activeColor: const Color(0xFF0F5B78),
-                  onChanged: (bool val) {
-                    setState(() => _notificationsEnabled = val);
-                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          val
-                              ? 'Push notifications enabled.'
-                              : 'Push notifications disabled.',
+                  onChanged: (bool val) async {
+                    try {
+                      await ref
+                          .read(sessionProvider.notifier)
+                          .updateNotificationPreference(val);
+                      if (!context.mounted) return;
+                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            val
+                                ? 'Push notifications enabled.'
+                                : 'Push notifications disabled.',
+                          ),
+                          duration: const Duration(seconds: 2),
                         ),
-                        duration: const Duration(seconds: 2),
-                      ),
-                    );
+                      );
+                    } catch (err) {
+                      if (!context.mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Failed to update preference: $err'),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
                   },
                   secondary: const Icon(Icons.notifications_active_outlined, color: Color(0xFF0F5B78)),
                   title: const Text(
@@ -251,7 +263,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 const Divider(height: 1, indent: 56),
                 ListTile(
                   onTap: () async {
-                    final uri = Uri.parse('http://localhost:3000/privacy-policy');
+                    final uri = Uri.parse(AppConfig.privacyPolicyUrl);
                     if (await canLaunchUrl(uri)) {
                       await launchUrl(uri, mode: LaunchMode.externalApplication);
                     }
@@ -471,6 +483,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
   Future<void> _save() async {
     if (!_form.currentState!.validate()) return;
+    // Debug: print values being sent
+    if (mounted) {
+      print('Saving profile: name=${_name.text}, phone=${_phone.text}, avatarUrl=${_avatarUrl.text}, filePath=${_pickedFile?.path}');
+    }
     setState(() => _loading = true);
     try {
       await ref.read(sessionProvider.notifier).updateProfile(
@@ -491,6 +507,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           SnackBar(content: Text(error.message)),
         );
       }
+    } catch (e) {
+      // Catch any other unexpected errors
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Unexpected error: $e')),
+        );
+      }
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -507,7 +530,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Color(0xFF1B3A5C)),
-          onPressed: () => context.pop(),
+            onPressed: () {
+              if (context.canPop()) {
+                context.pop();
+              } else {
+                context.go('/profile');
+              }
+            },
         ),
       ),
       body: Form(
@@ -696,7 +725,15 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
           elevation: 0,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Color(0xFF1B3A5C)),
-            onPressed: () => context.pop(),
+            onPressed: () {
+              if (context.canPop()) {
+                context.pop();
+              } else {
+                context.go('/profile');
+              }
+            },
+
+
           ),
         ),
         body: Form(

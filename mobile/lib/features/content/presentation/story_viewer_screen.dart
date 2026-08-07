@@ -279,9 +279,21 @@ class _SingleStoryItemState extends State<_SingleStoryItem>
                 StackTrace? stackTrace,
               ) {
                 debugPrint('❌ Story image failed to load ($_resolvedUrl): $error');
-                return Image.network(
-                  'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80',
-                  fit: BoxFit.cover,
+                return Container(
+                  color: const Color(0xFF0F172A),
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        const Icon(Icons.broken_image_outlined, color: Colors.white54, size: 48),
+                        const SizedBox(height: 12),
+                        Text(
+                          widget.story.title,
+                          style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  ),
                 );
               },
             ),

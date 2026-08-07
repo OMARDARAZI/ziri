@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app_providers.dart';
@@ -93,6 +94,16 @@ class _ProviderScannerScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF1B3A5C)),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go('/profile');
+            }
+          },
+        ),
         title: const Text('Provider QR Scanner'),
         centerTitle: true,
         actions: <Widget>[

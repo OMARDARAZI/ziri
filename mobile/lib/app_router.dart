@@ -10,6 +10,7 @@ import 'features/content/domain/content_models.dart';
 import 'features/content/presentation/content_screens.dart';
 import 'features/content/presentation/story_viewer_screen.dart';
 import 'features/explore/presentation/explore_screens.dart';
+import 'features/notifications/presentation/notifications_screen.dart';
 import 'features/profile/presentation/profile_screens.dart';
 import 'features/profile/presentation/provider_scanner_screen.dart';
 
@@ -30,7 +31,7 @@ final routerProvider = Provider<GoRouter>((Ref ref) {
       }
       const public = <String>{'/login', '/register'};
       final protected =
-          path.startsWith('/bookings') || path.startsWith('/profile');
+          path.startsWith('/bookings') || path.startsWith('/profile') || path.startsWith('/notifications');
       if (!session.isAuthenticated && protected) {
         return '/login?from=${Uri.encodeComponent(state.uri.toString())}';
       }
@@ -175,6 +176,10 @@ final routerProvider = Provider<GoRouter>((Ref ref) {
       GoRoute(
         path: '/profile/change-password',
         builder: (_, _) => const ChangePasswordScreen(),
+      ),
+      GoRoute(
+        path: '/notifications',
+        builder: (_, _) => const NotificationsScreen(),
       ),
       GoRoute(
         path: '/provider/scanner',

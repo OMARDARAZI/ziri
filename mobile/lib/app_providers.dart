@@ -13,6 +13,8 @@ import 'features/content/data/content_repository.dart';
 import 'features/content/domain/content_models.dart';
 import 'features/explore/data/explore_repository.dart';
 import 'features/explore/domain/explore_models.dart';
+import 'features/notifications/data/notification_repository.dart';
+import 'features/notifications/domain/notification_models.dart';
 
 final tokenStorageProvider = Provider<TokenStorage>(
   (Ref ref) => TokenStorage(),
@@ -39,6 +41,9 @@ final exploreRepositoryProvider = Provider<ExploreRepository>(
 );
 final bookingRepositoryProvider = Provider<BookingRepository>(
   (Ref ref) => BookingRepository(ref.watch(apiClientProvider)),
+);
+final notificationRepositoryProvider = Provider<NotificationRepository>(
+  (Ref ref) => NotificationRepository(ref.watch(apiClientProvider)),
 );
 
 class SessionState {
@@ -109,6 +114,13 @@ class SessionController extends Notifier<SessionState> {
           avatarUrl: avatarUrl,
           filePath: filePath,
         );
+    state = state.copyWith(user: user);
+  }
+
+  Future<void> updateNotificationPreference(bool enabled) async {
+    final user = await ref
+        .read(authRepositoryProvider)
+        .updateNotificationPreference(enabled);
     state = state.copyWith(user: user);
   }
 
@@ -220,6 +232,12 @@ final offeringDetailProvider = FutureProvider.family<Offering, int>(
 );
 final bookingDetailProvider = FutureProvider.family(
   (Ref ref, int id) => ref.watch(bookingRepositoryProvider).booking(id),
+);
+final userNotificationsProvider = FutureProvider<NotificationListResult>(
+  (Ref ref) => ref.watch(notificationRepositoryProvider).getNotifications(),
+);
+final unreadNotificationCountProvider = FutureProvider<int>(
+  (Ref ref) => ref.watch(notificationRepositoryProvider).getUnreadCount(),
 );
 
 final connectivityProvider = StreamProvider<bool>(

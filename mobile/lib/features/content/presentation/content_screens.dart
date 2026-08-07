@@ -92,15 +92,17 @@ class HomeScreen extends ConsumerWidget {
   }
 }
 
-class _TopHeader extends StatelessWidget {
+class _TopHeader extends ConsumerWidget {
   const _TopHeader({required this.user});
   final User? user;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final userName = user?.fullName.split(' ').first ?? 'Alex';
     final initial = userName.trim().isNotEmpty ? userName.trim()[0].toUpperCase() : 'U';
     final resolvedAvatar = resolveImageUrl(user?.avatarUrl);
+    final unreadCountAsync = ref.watch(unreadNotificationCountProvider);
+    final unreadCount = unreadCountAsync.asData?.value ?? 0;
 
     return Row(
       children: <Widget>[
@@ -154,6 +156,51 @@ class _TopHeader extends StatelessWidget {
           ),
         ),
       ),
+        Stack(
+          clipBehavior: Clip.none,
+          children: <Widget>[
+            Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF1F5F9),
+                shape: BoxShape.circle,
+                border: Border.all(color: const Color(0xFFE2E8F0)),
+              ),
+              child: IconButton(
+                icon: const Icon(Icons.notifications_outlined, size: 18, color: Color(0xFF1B3A5C)),
+                onPressed: () => context.push('/notifications'),
+                padding: EdgeInsets.zero,
+              ),
+            ),
+            if (unreadCount > 0)
+              Positioned(
+                right: -2,
+                top: -2,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: const BoxDecoration(
+                    color: Colors.redAccent,
+                    shape: BoxShape.circle,
+                  ),
+                  constraints: const BoxConstraints(
+                    minWidth: 16,
+                    minHeight: 16,
+                  ),
+                  child: Text(
+                    unreadCount > 99 ? '99+' : '$unreadCount',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 9,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(width: 8),
         Container(
           width: 36,
           height: 36,

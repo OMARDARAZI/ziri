@@ -180,6 +180,7 @@ export function AdminFormPage() {
   });
 
   const onSubmit = async (values: Values) => {
+    console.log('Submitting admin form values:', values);
     const parsed = descriptor.schema.safeParse(values);
     if (!parsed.success) {
       for (const issue of parsed.error.issues) {

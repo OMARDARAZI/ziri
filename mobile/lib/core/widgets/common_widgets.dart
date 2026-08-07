@@ -42,14 +42,12 @@ class NetworkImageBox extends StatelessWidget {
     return Semantics(
       image: true,
       label: label,
-      child: CachedNetworkImage(
-        imageUrl: url,
+      child: Image.network(
+        url,
         height: height,
         width: width,
         fit: fit,
-        fadeInDuration: Duration.zero,
-        placeholder: (_, _) => _fallback(),
-        errorWidget: (_, _, _) => _fallback(),
+        errorBuilder: (_, __, ___) => _fallback(),
       ),
     );
   }

@@ -16,13 +16,14 @@ class AppConfig {
   static String get _defaultHost {
     const customHost = String.fromEnvironment('SERVER_HOST');
     if (customHost.isNotEmpty) return customHost;
-    return '54.224.201.177';
+    if (kIsWeb) return 'localhost:3000';
+    return Platform.isAndroid ? '10.0.2.2:3000' : 'localhost:3000';
   }
 
   static String get adminUrl {
     const custom = String.fromEnvironment('ADMIN_URL');
     if (custom.isNotEmpty) return custom;
-    return 'http://54.224.201.177/admin/login';
+    return 'http://$_defaultHost/admin/login';
   }
 
   static String get apiBaseUrl {
@@ -41,6 +42,12 @@ class AppConfig {
     const custom = String.fromEnvironment('PUBLIC_QR_BASE_URL');
     if (custom.isNotEmpty) return custom;
     return 'http://$_defaultHost/qr';
+  }
+
+  static String get privacyPolicyUrl {
+    const custom = String.fromEnvironment('PRIVACY_POLICY_URL');
+    if (custom.isNotEmpty) return custom;
+    return '$backendOrigin/privacy-policy';
   }
 
   static const enableApiLogging = bool.fromEnvironment('ENABLE_API_LOGGING');

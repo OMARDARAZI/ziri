@@ -15,6 +15,7 @@ import { ProviderScanner } from '../features/provider/ProviderScanner';
 import { ProviderHistory } from '../features/provider/ProviderHistory';
 import { ProviderProfile } from '../features/provider/ProviderProfile';
 import { PublicQrPage } from '../features/publicQr/PublicQrPage';
+import { PrivacyPolicyPage } from '../features/public/PrivacyPolicyPage';
 import { ShieldAlert, FileQuestion, ArrowLeft, Home } from 'lucide-react';
 
 function Simple({ title, message }: { title: string; message: string }) {
@@ -50,4 +51,38 @@ function Simple({ title, message }: { title: string; message: string }) {
     </main>
   );
 }
-export function App(){return <Routes><Route path="/" element={<Navigate to="/admin/login" replace/>}/><Route element={<AuthLayout/>}><Route path="/admin/login" element={<PublicOnlyRoute><LoginPage role="ADMIN"/></PublicOnlyRoute>}/><Route path="/provider/login" element={<PublicOnlyRoute><LoginPage role="PROVIDER"/></PublicOnlyRoute>}/></Route><Route path="/qr/:token" element={<PublicQrPage/>}/><Route path="/unauthorized" element={<Simple title="Unauthorized" message="You do not have access to this page."/>}/><Route element={<RequireAuthentication role="ADMIN"><DashboardLayout role="admin"/></RequireAuthentication>}><Route path="/admin" element={<Navigate to="/admin/dashboard" replace/>}/><Route path="/admin/dashboard" element={<AdminDashboard/>}/><Route path="/admin/profile" element={<AdminProfile/>}/><Route path="/admin/:resource" element={<AdminListPage/>}/><Route path="/admin/:resource/new" element={<AdminFormPage/>}/><Route path="/admin/:resource/:id" element={<AdminDetailPage/>}/><Route path="/admin/:resource/:id/edit" element={<AdminFormPage/>}/></Route><Route element={<RequireAuthentication role="PROVIDER"><DashboardLayout role="provider"/></RequireAuthentication>}><Route path="/provider" element={<Navigate to="/provider/dashboard" replace/>}/><Route path="/provider/dashboard" element={<ProviderDashboard/>}/><Route path="/provider/bookings" element={<ProviderBookings/>}/><Route path="/provider/bookings/:id" element={<ProviderBookingDetail/>}/><Route path="/provider/scanner" element={<ProviderScanner/>}/><Route path="/provider/scan-history" element={<ProviderHistory/>}/><Route path="/provider/profile" element={<ProviderProfile/>}/></Route><Route path="/not-found" element={<Simple title="Page not found" message="The requested page could not be found."/>}/><Route path="*" element={<Navigate to="/not-found" replace/>}/></Routes>;}
+
+export function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<Navigate to="/admin/login" replace />} />
+      <Route element={<AuthLayout />}>
+        <Route path="/admin/login" element={<PublicOnlyRoute><LoginPage role="ADMIN" /></PublicOnlyRoute>} />
+        <Route path="/provider/login" element={<PublicOnlyRoute><LoginPage role="PROVIDER" /></PublicOnlyRoute>} />
+      </Route>
+      <Route path="/qr/:token" element={<PublicQrPage />} />
+      <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+      <Route path="/unauthorized" element={<Simple title="Unauthorized" message="You do not have access to this page." />} />
+      <Route element={<RequireAuthentication role="ADMIN"><DashboardLayout role="admin" /></RequireAuthentication>}>
+        <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/profile" element={<AdminProfile />} />
+        <Route path="/admin/:resource" element={<AdminListPage />} />
+        <Route path="/admin/:resource/new" element={<AdminFormPage />} />
+        <Route path="/admin/:resource/:id" element={<AdminDetailPage />} />
+        <Route path="/admin/:resource/:id/edit" element={<AdminFormPage />} />
+      </Route>
+      <Route element={<RequireAuthentication role="PROVIDER"><DashboardLayout role="provider" /></RequireAuthentication>}>
+        <Route path="/provider" element={<Navigate to="/provider/dashboard" replace />} />
+        <Route path="/provider/dashboard" element={<ProviderDashboard />} />
+        <Route path="/provider/bookings" element={<ProviderBookings />} />
+        <Route path="/provider/bookings/:id" element={<ProviderBookingDetail />} />
+        <Route path="/provider/scanner" element={<ProviderScanner />} />
+        <Route path="/provider/scan-history" element={<ProviderHistory />} />
+        <Route path="/provider/profile" element={<ProviderProfile />} />
+      </Route>
+      <Route path="/not-found" element={<Simple title="Page not found" message="The requested page could not be found." />} />
+      <Route path="*" element={<Navigate to="/not-found" replace />} />
+    </Routes>
+  );
+}

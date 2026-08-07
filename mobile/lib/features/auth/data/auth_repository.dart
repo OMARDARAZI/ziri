@@ -89,6 +89,14 @@ class AuthRepository {
     return User.fromJson(asMap(asMap(envelope.data)['user']));
   }
 
+  Future<User> updateNotificationPreference(bool enabled) async {
+    final envelope = await _api.patch(
+      '/auth/notifications-preference',
+      data: <String, Object>{'notifications_enabled': enabled},
+    );
+    return User.fromJson(asMap(asMap(envelope.data)['user']));
+  }
+
   Future<void> changePassword({
     required String current,
     required String next,

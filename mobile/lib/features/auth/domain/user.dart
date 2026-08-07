@@ -5,6 +5,7 @@ class User {
     required this.fullName,
     required this.phone,
     required this.isActive,
+    this.notificationsEnabled = true,
     this.avatarUrl,
   });
 
@@ -14,6 +15,9 @@ class User {
     fullName: '${json['full_name'] ?? ''}',
     phone: '${json['phone'] ?? ''}',
     isActive: json['is_active'] == true || json['is_active'] == 1,
+    notificationsEnabled: json['notifications_enabled'] == null ||
+        json['notifications_enabled'] == true ||
+        json['notifications_enabled'] == 1,
     avatarUrl: json['avatar_url'] as String?,
   );
 
@@ -22,6 +26,7 @@ class User {
   final String fullName;
   final String phone;
   final bool isActive;
+  final bool notificationsEnabled;
   final String? avatarUrl;
 
   Map<String, Object> profilePayload({

@@ -45,6 +45,9 @@ class ApiClient {
   Future<ApiEnvelope> put(String path, {Object? data}) =>
       _request(() => _dio.put<Object?>(path, data: data));
 
+  Future<ApiEnvelope> patch(String path, {Object? data, Map<String, Object?>? query}) =>
+      _request(() => _dio.patch<Object?>(path, data: data, queryParameters: query));
+
   Future<ApiEnvelope> _request(
     Future<Response<Object?>> Function() call,
   ) async {
