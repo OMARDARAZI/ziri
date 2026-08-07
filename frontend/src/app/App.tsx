@@ -16,6 +16,7 @@ import { ProviderHistory } from '../features/provider/ProviderHistory';
 import { ProviderProfile } from '../features/provider/ProviderProfile';
 import { PublicQrPage } from '../features/publicQr/PublicQrPage';
 import { PrivacyPolicyPage } from '../features/public/PrivacyPolicyPage';
+import { AdminPrivacyPolicyPage } from '../features/admin/AdminPrivacyPolicyPage';
 import { ShieldAlert, FileQuestion, ArrowLeft, Home } from 'lucide-react';
 
 function Simple({ title, message }: { title: string; message: string }) {
@@ -67,6 +68,7 @@ export function App() {
         <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
         <Route path="/admin/profile" element={<AdminProfile />} />
+        <Route path="/admin/privacy-policy" element={<AdminPrivacyPolicyPage />} />
         <Route path="/admin/:resource" element={<AdminListPage />} />
         <Route path="/admin/:resource/new" element={<AdminFormPage />} />
         <Route path="/admin/:resource/:id" element={<AdminDetailPage />} />

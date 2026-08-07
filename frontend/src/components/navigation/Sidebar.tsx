@@ -15,6 +15,7 @@ import {
   Contact,
   QrCode,
   ScanLine,
+  FileText,
   Settings,
   CircleUser,
   LogOut,
@@ -70,6 +71,7 @@ const adminGroups = [
   {
     title: 'System',
     links: [
+      { path: 'privacy-policy', label: 'Privacy Policy', icon: FileText },
       { path: 'settings', label: 'Settings', icon: Settings },
       { path: 'profile', label: 'Profile', icon: CircleUser }
     ]

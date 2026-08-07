@@ -103,5 +103,35 @@ async function providerBooking(req,res){const provider=await requireProviderProf
 async function providerHistory(req,res){await requireProviderProfile(req);const rows=await query('SELECT l.*,q.public_token FROM qr_scan_logs l LEFT JOIN participant_qr_codes q ON q.id=l.qr_id WHERE l.scanned_by_user_id=? ORDER BY l.created_at DESC LIMIT 200',[req.session.user.id]);success(res,rows);}
 async function providerProfile(req,res){const provider=await requireProviderProfile(req);if(req.method==='GET')return success(res,provider);const businessName=String(req.body.business_name||'').trim();if(!businessName)throw new AppError('Business name is required',422,'VALIDATION_ERROR');const phone=normalizePhone(req.body.phone);if(!phone)throw new AppError('Phone is invalid',422,'VALIDATION_ERROR');await query('UPDATE providers SET business_name=?,description=?,phone=?,email=?,address=? WHERE id=?',[businessName,req.body.description?.trim()||null,phone,req.body.email?.trim()||null,req.body.address?.trim()||null,provider.id]);success(res,await providerRepo.byUserId(req.session.user.id),'Profile updated successfully');}
 async function providerValidate(req,res){await requireProviderProfile(req);const token=extractToken(req.body.token);if(!token)throw new AppError('Enter a valid QR token or public QR link',422,'VALIDATION_ERROR');success(res,await qrService.validate(req.session.user,token,{ip:req.ip,userAgent:req.get('user-agent')}),'QR validated successfully');}
+
 async function publicQr(req,res){const record=await qrService.publicRecord(req.params.token);if(!record)throw new AppError('Invalid QR code',404,'NOT_FOUND');let displayStatus=record.status;if(record.status==='ACTIVE'&&new Date()<new Date(record.valid_from))displayStatus='NOT_YET_VALID';success(res,{participant_name:record.participant_name,masked_phone:require('../utils/phone').maskPhone(record.participant_phone),booking_code:record.booking_code,offering_title:record.offering_title,provider_name:record.provider_name,scheduled_at:record.scheduled_at,status:displayStatus,valid_from:record.valid_from,valid_until:record.valid_until,public_url:publicUrl(req.params.token),image_url:`${publicUrl(req.params.token)}/image`});}
-module.exports={login,logout,me,adminSummary,related,list,get,save,remove,bookingAction,cancelQr,providerSummary,providerBookings,providerBooking,providerHistory,providerProfile,providerValidate,publicQr,resources};
+
+async function getPrivacyPolicy(_req, res) {
+  const settingRepo = require('../repositories/setting.repository');
+  const DEFAULT_PRIVACY_POLICY = `Welcome to Zeera. Your privacy is paramount to us.
+
+1. Information We Collect
+We collect minimal personal information including your full name, phone number, and optional profile avatar to process reservation bookings, validate participant QR codes at check-in, and allow providers to confirm service details.
+
+2. How We Use Your Data
+Your data is strictly used for facilitating island activity reservations, customer service support, and security authentication. We do not sell, rent, or trade your personal data to third parties.
+
+3. Account Deletion & Rights
+You have the right to request the permanent deletion of your account and personal data at any time directly through the Zeera mobile app under Profile Settings, or by submitting your registered phone number on our public deletion portal.
+
+4. Contact & Support
+For any privacy inquiries or assistance, please contact us at support@zeera.lb.`;
+  const content = (await settingRepo.get('privacy_policy_content')) || DEFAULT_PRIVACY_POLICY;
+  success(res, { content }, 'Privacy policy retrieved');
+}
+
+async function updatePrivacyPolicy(req, res) {
+  const settingRepo = require('../repositories/setting.repository');
+  const content = String(req.body.content || '').trim();
+  if (!content) throw new AppError('Privacy policy content cannot be empty', 422, 'VALIDATION_ERROR');
+  await settingRepo.set('privacy_policy_content', content);
+  success(res, { content }, 'Privacy policy updated successfully');
+}
+
+module.exports={login,logout,me,adminSummary,related,list,get,save,remove,bookingAction,cancelQr,providerSummary,providerBookings,providerBooking,providerHistory,providerProfile,providerValidate,publicQr,getPrivacyPolicy,updatePrivacyPolicy,resources};
+
