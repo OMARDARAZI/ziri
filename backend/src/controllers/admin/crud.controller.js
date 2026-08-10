@@ -16,7 +16,8 @@ const configs={
   'scan-logs':{table:'qr_scan_logs',title:'QR scan logs',fields:[],order:'created_at DESC',readonly:true},
   settings:{table:'app_settings',title:'Application settings',fields:['setting_key','setting_value'],order:'setting_key',settings:true},
   'privacy-policy':{table:'app_settings',title:'Privacy Policy',fields:['setting_key','setting_value'],order:'setting_key',settings:true},
-  'deletion-requests':{table:'account_deletion_requests',title:'Deletion Requests',fields:['phone','full_name','reason','status'],order:'created_at DESC'}
+  'deletion-requests':{table:'account_deletion_requests',title:'Deletion Requests',fields:['phone','full_name','reason','status'],order:'created_at DESC'},
+  'support-messages':{table:'support_messages',title:'Support Messages',fields:['name','email','phone','subject','message','status'],order:'created_at DESC'}
 };
 function config(resource){const value=configs[resource];if(!value)throw new AppError('Unknown admin resource',404);return value;}
 function clean(value){return value===''?null:value;}

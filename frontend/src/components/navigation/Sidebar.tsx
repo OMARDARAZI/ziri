@@ -12,6 +12,7 @@ import {
   Compass,
   Users,
   UserX,
+  Headset,
   CalendarCheck,
   Contact,
   QrCode,
@@ -58,7 +59,8 @@ const adminGroups = [
       { path: 'users', label: 'All Users', icon: Users },
       { path: 'customers', label: 'Customers', icon: Users },
       { path: 'provider-users', label: 'Provider Users', icon: UserCog },
-      { path: 'deletion-requests', label: 'Deletion Requests', icon: UserX }
+      { path: 'deletion-requests', label: 'Deletion Requests', icon: UserX },
+      { path: 'support-messages', label: 'Support Messages', icon: Headset }
     ]
   },
   {

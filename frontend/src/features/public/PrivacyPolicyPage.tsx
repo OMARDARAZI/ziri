@@ -58,7 +58,7 @@ For any privacy inquiries or assistance, please contact us at support@zeera.lb.`
         <div className="d-flex align-items-center justify-content-between flex-wrap gap-2 text-muted small">
           <span>&copy; {new Date().getFullYear()} Zeera Platform. All rights reserved.</span>
           <div className="d-flex align-items-center gap-3">
-            <a href="mailto:support@zeera.lb" className="text-decoration-none text-primary fw-semibold">
+            <a href="/support" className="text-decoration-none text-primary fw-semibold">
               Contact Support &rarr;
             </a>
             <a href="/delete-account" className="text-decoration-none text-danger fw-semibold">
