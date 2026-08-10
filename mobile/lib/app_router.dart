@@ -11,6 +11,7 @@ import 'features/content/presentation/content_screens.dart';
 import 'features/content/presentation/story_viewer_screen.dart';
 import 'features/explore/presentation/explore_screens.dart';
 import 'features/notifications/presentation/notifications_screen.dart';
+import 'features/profile/presentation/notifications_screen.dart';
 import 'features/profile/presentation/profile_screens.dart';
 import 'features/profile/presentation/provider_scanner_screen.dart';
 
@@ -176,6 +177,10 @@ final routerProvider = Provider<GoRouter>((Ref ref) {
       GoRoute(
         path: '/profile/change-password',
         builder: (_, _) => const ChangePasswordScreen(),
+      ),
+      GoRoute(
+        path: '/profile/notifications',
+        builder: (_, _) => const NotificationsSettingsScreen(),
       ),
       GoRoute(
         path: '/notifications',

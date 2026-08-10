@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../../../core/widgets/common_widgets.dart';
-import '../../../../../core/providers/session_provider.dart';
-import '../../../../../core/services/api_exception.dart';
+import 'package:go_router/go_router.dart';
 
-class NotificationsScreen extends ConsumerStatefulWidget {
-  const NotificationsScreen({super.key});
+import '../../../app_providers.dart';
+import '../../../core/api/api_exception.dart';
+
+class NotificationsSettingsScreen extends ConsumerStatefulWidget {
+  const NotificationsSettingsScreen({super.key});
 
   @override
-  ConsumerState<NotificationsScreen> createState() => _NotificationsScreenState();
+  ConsumerState<NotificationsSettingsScreen> createState() => _NotificationsSettingsScreenState();
 }
 
-class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
+class _NotificationsSettingsScreenState extends ConsumerState<NotificationsSettingsScreen> {
   bool _loading = false;
 
   Future<void> _toggle(bool value) async {
@@ -36,31 +37,55 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
   Widget build(BuildContext context) {
     final enabled = ref.watch(sessionProvider).user?.notificationsEnabled ?? false;
     return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        title: const Text('Notification Settings'),
+        title: const Text(
+          'Notification Settings',
+          style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1B3A5C)),
+        ),
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Color(0xFF1B3A5C)),
-          onPressed: () => context.pop(),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go('/profile');
+            }
+          },
         ),
       ),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          ListTile(
-            title: const Text('Enable notifications'),
-            trailing: _loading
-                ? const CircularProgressIndicator()
-                : Switch(
-                    value: enabled,
-                    onChanged: (v) => _toggle(v),
-                  ),
-          ),
-          const SizedBox(height: 20),
-          const Text(
-            'You will receive push notifications for important updates.',
-            style: TextStyle(fontSize: 14, color: Color(0xFF64748B)),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFE2E8F0)),
+            ),
+            child: ListTile(
+              title: const Text(
+                'Enable Push Notifications',
+                style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF0F172A)),
+              ),
+              subtitle: const Text(
+                'Receive alerts for booking updates and announcements',
+                style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+              ),
+              trailing: _loading
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Switch(
+                      value: enabled,
+                      activeColor: const Color(0xFF0F5B78),
+                      onChanged: (v) => _toggle(v),
+                    ),
+            ),
           ),
         ],
       ),

@@ -262,6 +262,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 ),
                 const Divider(height: 1, indent: 56),
                 ListTile(
+                  onTap: () => context.go('/profile/notifications'),
+                  leading: const Icon(Icons.notifications_outlined, color: Color(0xFF0F5B78)),
+                  title: const Text('Notification settings', style: TextStyle(fontWeight: FontWeight.w600)),
+                  trailing: const Icon(Icons.chevron_right),
+                ),
+                const Divider(height: 1, indent: 56),
+                ListTile(
                   onTap: () async {
                     final uri = Uri.parse(AppConfig.privacyPolicyUrl);
                     if (await canLaunchUrl(uri)) {

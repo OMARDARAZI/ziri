@@ -22,5 +22,9 @@ module.exports = {
   corsOrigins: (process.env.CORS_ORIGINS || 'http://localhost:3000,http://localhost:5173').split(',').map((value) => value.trim()).filter(Boolean),
   qrValidBeforeMinutes: Number(process.env.QR_VALID_BEFORE_MINUTES || 60),
   qrValidAfterMinutes: Number(process.env.QR_VALID_AFTER_MINUTES || 180),
-  maxUploadBytes: Number(process.env.MAX_UPLOAD_SIZE_MB || 5) * 1024 * 1024
+  maxUploadBytes: Number(process.env.MAX_UPLOAD_SIZE_MB || 5) * 1024 * 1024,
+  oneSignal: {
+    appId: process.env.ONESIGNAL_APP_ID || '',
+    restApiKey: process.env.ONESIGNAL_REST_API_KEY || ''
+  }
 };

@@ -5,7 +5,8 @@ const env = require('../src/config/environment');
 
 const columns = {
   users: {
-    provider_id: 'BIGINT UNSIGNED NULL'
+    provider_id: 'BIGINT UNSIGNED NULL',
+    notifications_enabled: 'BOOLEAN NOT NULL DEFAULT TRUE'
   },
   providers: {
     logo: 'VARCHAR(255) NULL',
@@ -68,6 +69,9 @@ const columns = {
     user_agent: 'VARCHAR(512) NULL'
   },
   app_settings: {
+    updated_at: 'TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'
+  },
+  account_deletion_requests: {
     updated_at: 'TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'
   }
 };

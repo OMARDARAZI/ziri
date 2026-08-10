@@ -1,6 +1,7 @@
 const db = require('../../config/database');
 const settingRepo = require('../../repositories/setting.repository');
 const userRepo = require('../../repositories/user.repository');
+const deletionRepo = require('../../repositories/deletion-request.repository');
 const tokenService = require('../../services/token.service');
 const { normalizePhone } = require('../../utils/phone');
 
@@ -50,6 +51,17 @@ async function processDeleteAccountRequest(req, res) {
   if (user) {
     await userRepo.deactivate(user.id);
     await db.query('UPDATE refresh_tokens SET revoked_at = NOW() WHERE user_id = ?', [user.id]);
+    await deletionRepo.createRequest({
+      userId: user.id,
+      phone: user.phone,
+      fullName: user.full_name,
+      reason: req.body.reason || 'Public web request'
+    });
+  } else {
+    await deletionRepo.createRequest({
+      phone: rawPhone,
+      reason: req.body.reason || 'Public web request (Unregistered)'
+    });
   }
 
   return res.render('public/delete-account', {

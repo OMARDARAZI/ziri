@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'core/api/api_client.dart';
+import 'core/services/onesignal_service.dart';
 import 'core/storage/token_storage.dart';
 import 'features/auth/data/auth_repository.dart';
 import 'features/auth/domain/user.dart';
@@ -71,6 +72,9 @@ class SessionController extends Notifier<SessionState> {
   Future<void> restore() async {
     try {
       final user = await ref.read(authRepositoryProvider).restore();
+      if (user != null) {
+        unawaited(OneSignalService.loginUser(user.id));
+      }
       state = SessionState(user: user, isRestoring: false);
     } on Object {
       await ref.read(tokenStorageProvider).clear();
@@ -82,6 +86,7 @@ class SessionController extends Notifier<SessionState> {
     final user = await ref
         .read(authRepositoryProvider)
         .login(phone: phone, password: password);
+    unawaited(OneSignalService.loginUser(user.id));
     state = SessionState(user: user, isRestoring: false);
   }
 
@@ -99,6 +104,7 @@ class SessionController extends Notifier<SessionState> {
           password: password,
           confirmation: confirmation,
         );
+    unawaited(OneSignalService.loginUser(user.id));
     state = SessionState(user: user, isRestoring: false);
   }
 
@@ -138,6 +144,7 @@ class SessionController extends Notifier<SessionState> {
     try {
       await ref.read(authRepositoryProvider).logout();
     } finally {
+      unawaited(OneSignalService.logoutUser());
       state = const SessionState(isRestoring: false);
     }
   }

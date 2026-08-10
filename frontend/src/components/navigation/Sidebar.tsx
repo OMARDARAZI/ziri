@@ -11,6 +11,7 @@ import {
   UserCog,
   Compass,
   Users,
+  UserX,
   CalendarCheck,
   Contact,
   QrCode,
@@ -56,7 +57,8 @@ const adminGroups = [
     links: [
       { path: 'users', label: 'All Users', icon: Users },
       { path: 'customers', label: 'Customers', icon: Users },
-      { path: 'provider-users', label: 'Provider Users', icon: UserCog }
+      { path: 'provider-users', label: 'Provider Users', icon: UserCog },
+      { path: 'deletion-requests', label: 'Deletion Requests', icon: UserX }
     ]
   },
   {

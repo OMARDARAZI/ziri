@@ -16,6 +16,7 @@ import { ProviderHistory } from '../features/provider/ProviderHistory';
 import { ProviderProfile } from '../features/provider/ProviderProfile';
 import { PublicQrPage } from '../features/publicQr/PublicQrPage';
 import { PrivacyPolicyPage } from '../features/public/PrivacyPolicyPage';
+import { DeleteAccountPage } from '../features/public/DeleteAccountPage';
 import { AdminPrivacyPolicyPage } from '../features/admin/AdminPrivacyPolicyPage';
 import { ShieldAlert, FileQuestion, ArrowLeft, Home } from 'lucide-react';
 
@@ -63,6 +64,7 @@ export function App() {
       </Route>
       <Route path="/qr/:token" element={<PublicQrPage />} />
       <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+      <Route path="/delete-account" element={<DeleteAccountPage />} />
       <Route path="/unauthorized" element={<Simple title="Unauthorized" message="You do not have access to this page." />} />
       <Route element={<RequireAuthentication role="ADMIN"><DashboardLayout role="admin" /></RequireAuthentication>}>
         <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />

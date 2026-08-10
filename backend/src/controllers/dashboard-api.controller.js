@@ -28,7 +28,9 @@ const resources = {
   participants: { table: 'booking_participants', fields: [], order: 'created_at DESC', readonly: true, search: "CONCAT(full_name,' ',phone)" },
   'qr-codes': { table: 'participant_qr_codes', fields: [], order: 'created_at DESC', readonly: true, search: 'public_token' },
   'scan-logs': { table: 'qr_scan_logs', fields: [], order: 'created_at DESC', readonly: true, search: "CONCAT(result_code,' ',result_message)" },
-  settings: { table: 'app_settings', fields: ['setting_key','setting_value'], order: 'setting_key', settings: true, search: "CONCAT(setting_key,' ',setting_value)" }
+  settings: { table: 'app_settings', fields: ['setting_key','setting_value'], order: 'setting_key', settings: true, search: "CONCAT(setting_key,' ',setting_value)" },
+  'privacy-policy': { table: 'app_settings', fields: ['setting_key','setting_value'], order: 'setting_key', settings: true, search: "CONCAT(setting_key,' ',setting_value)" },
+  'deletion-requests': { table: 'account_deletion_requests', fields: ['phone','full_name','reason','status'], order: 'created_at DESC', search: "CONCAT(phone,' ',COALESCE(full_name,''),' ',COALESCE(reason,''),' ',status)" }
 };
 function csrf(req) { if (!req.session.csrfToken) req.session.csrfToken = require('crypto').randomBytes(32).toString('hex'); return req.session.csrfToken; }
 function resource(name) { const value = resources[name]; if (!value) throw new AppError('Unknown dashboard resource', 404, 'NOT_FOUND'); return value; }

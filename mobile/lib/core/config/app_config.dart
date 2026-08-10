@@ -50,5 +50,10 @@ class AppConfig {
     return '$backendOrigin/privacy-policy';
   }
 
+  static const oneSignalAppId = String.fromEnvironment(
+    'ONESIGNAL_APP_ID',
+    defaultValue: 'YOUR_ONESIGNAL_APP_ID',
+  );
+
   static const enableApiLogging = bool.fromEnvironment('ENABLE_API_LOGGING');
 }

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../api/client';
+import { env } from '../../api/env';
 import { dataOf } from '../../api/response';
 import { LoadingState, ErrorState } from '../../components/common/States';
 import { ShieldCheck, ExternalLink, Save, CheckCircle2, RefreshCw } from 'lucide-react';
@@ -48,7 +49,8 @@ export function AdminPrivacyPolicyPage() {
   const currentContent = content !== null ? content : query.data?.content || '';
 
   const handleOpenLivePage = () => {
-    window.open('/privacy-policy', '_blank', 'noopener,noreferrer');
+    const targetUrl = env.backendOrigin ? `${env.backendOrigin}/privacy-policy` : '/privacy-policy';
+    window.open(targetUrl, '_blank', 'noopener,noreferrer');
   };
 
   const handleSave = (e: React.FormEvent) => {
