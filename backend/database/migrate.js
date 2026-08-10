@@ -73,6 +73,9 @@ const columns = {
   },
   account_deletion_requests: {
     updated_at: 'TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'
+  },
+  support_messages: {
+    updated_at: 'TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'
   }
 };
 
