@@ -68,7 +68,30 @@ async function requireProviderProfile(req) { const provider=await providerRepo.b
 async function login(req, res) { const role = req.originalUrl.includes('/provider/login') ? 'PROVIDER' : 'ADMIN'; const result = await auth.login(req.body.phone, req.body.password, [role]); req.session.user = result.user; success(res, { user: result.user, csrf_token: csrf(req) }, 'Login successful'); }
 function logout(req, res) { req.session.destroy(() => success(res, {}, 'Logged out successfully')); }
 function me(req, res) { success(res, { user: req.session.user, csrf_token: csrf(req) }); }
-async function adminSummary(_req,res) { const keys = ['customers','providers','offerings','services','activities','bookings','pending','confirmed','cancelled','completed','validations','events','restaurants']; const sql = ["SELECT COUNT(*) total FROM users WHERE role='CUSTOMER'",'SELECT COUNT(*) total FROM providers','SELECT COUNT(*) total FROM offerings',"SELECT COUNT(*) total FROM offerings WHERE type='SERVICE'","SELECT COUNT(*) total FROM offerings WHERE type='ACTIVITY'",'SELECT COUNT(*) total FROM bookings',"SELECT COUNT(*) total FROM bookings WHERE status='PENDING'","SELECT COUNT(*) total FROM bookings WHERE status='CONFIRMED'","SELECT COUNT(*) total FROM bookings WHERE status='CANCELLED'","SELECT COUNT(*) total FROM bookings WHERE status='COMPLETED'","SELECT COUNT(*) total FROM qr_scan_logs WHERE success=1 AND DATE(created_at)=CURDATE()","SELECT COUNT(*) total FROM events WHERE is_active=1 AND event_date>=CURDATE()","SELECT COUNT(*) total FROM restaurants WHERE is_active=1"]; const rows = await Promise.all(sql.map((stmt) => query(stmt))); const summary = Object.fromEntries(rows.map((item,index) => [keys[index], item[0].total])); const recentBookings = await query("SELECT b.id, b.booking_code, b.scheduled_at, b.status, b.total_amount, b.currency, u.full_name customer_name, o.title offering_title FROM bookings b JOIN users u ON u.id=b.customer_user_id JOIN offerings o ON o.id=b.offering_id ORDER BY b.created_at DESC LIMIT 5"); success(res, { ...summary, recent_bookings: recentBookings }); }
+async function adminSummary(_req,res) {
+  const summarySql = `
+    SELECT
+      (SELECT COUNT(*) FROM users WHERE role='CUSTOMER') AS customers,
+      (SELECT COUNT(*) FROM providers) AS providers,
+      (SELECT COUNT(*) FROM offerings) AS offerings,
+      (SELECT COUNT(*) FROM offerings WHERE type='SERVICE') AS services,
+      (SELECT COUNT(*) FROM offerings WHERE type='ACTIVITY') AS activities,
+      (SELECT COUNT(*) FROM bookings) AS bookings,
+      (SELECT COUNT(*) FROM bookings WHERE status='PENDING') AS pending,
+      (SELECT COUNT(*) FROM bookings WHERE status='CONFIRMED') AS confirmed,
+      (SELECT COUNT(*) FROM bookings WHERE status='CANCELLED') AS cancelled,
+      (SELECT COUNT(*) FROM bookings WHERE status='COMPLETED') AS completed,
+      (SELECT COUNT(*) FROM qr_scan_logs WHERE success=1 AND DATE(created_at)=CURDATE()) AS validations,
+      (SELECT COUNT(*) FROM events WHERE is_active=1 AND event_date>=CURDATE()) AS events,
+      (SELECT COUNT(*) FROM restaurants WHERE is_active=1) AS restaurants
+  `;
+  const [summaryRows, recentBookings] = await Promise.all([
+    query(summarySql),
+    query("SELECT b.id, b.booking_code, b.scheduled_at, b.status, b.total_amount, b.currency, u.full_name customer_name, o.title offering_title FROM bookings b JOIN users u ON u.id=b.customer_user_id JOIN offerings o ON o.id=b.offering_id ORDER BY b.created_at DESC LIMIT 5")
+  ]);
+  const summary = summaryRows[0] || {};
+  success(res, { ...summary, recent_bookings: recentBookings });
+}
 async function related(_req,res) { const [providerUsers,providers] = await Promise.all([query("SELECT id,full_name,phone FROM users WHERE role='PROVIDER' AND is_active=1 ORDER BY full_name"),query('SELECT id,business_name FROM providers WHERE is_active=1 ORDER BY business_name')]); success(res,{provider_users:providerUsers,providers}); }
 async function list(req,res) { const config = resource(req.params.resource); const { page, limit, offset } = pagination(req); const filter = filterSql(req, config); const [items,total] = await Promise.all([query(`SELECT ${safeColumns(config)} FROM ${config.table} ${filter.sql} ORDER BY ${config.order} ${limitOffsetClause(limit, offset)}`,filter.values), query(`SELECT COUNT(*) total FROM ${config.table} ${filter.sql}`,filter.values)]); success(res,items,'Operation completed successfully',200,{page,limit,total:total[0].total,pages:Math.ceil(total[0].total/limit)}); }
 async function get(req,res) { const config = resource(req.params.resource); const id=config.settings?String(req.params.id||'').trim():dashboardId(req.params.id); if(!id||config.settings&&!/^[A-Za-z0-9_.-]{1,100}$/.test(id)) throw new AppError('A valid setting key is required',422,'VALIDATION_ERROR'); const key=config.settings?'setting_key':'id'; const rows=await query(`SELECT ${safeColumns(config)} FROM ${config.table} WHERE ${key}=?`,[id]); if(!rows[0]) throw new AppError('Record not found',404,'NOT_FOUND'); if(req.params.resource==='bookings'){ const booking=await bookingRepo.find(id); if(!booking) throw new AppError('Record not found',404,'NOT_FOUND'); return success(res,{...booking,participants:withUrls(await bookingRepo.participantRows(id))}); } if(req.params.resource==='qr-codes'){ const item=await qrService.publicRecord(rows[0].public_token); if(!item) throw new AppError('Record not found',404,'NOT_FOUND'); return success(res,item); } success(res,rows[0]); }

@@ -44,7 +44,7 @@ export function AdminPrivacyPolicyPage() {
   });
 
   if (query.isPending) return <LoadingState />;
-  if (query.isError) return <ErrorState error={query.error} onRetry={() => void query.refetch()} />;
+  if (query.isError) return <ErrorState error={query.error} retry={() => void query.refetch()} />;
 
   const currentContent = content !== null ? content : query.data?.content || '';
 
