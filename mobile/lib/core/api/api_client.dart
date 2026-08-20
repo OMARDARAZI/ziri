@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'dart:io' show HttpClient;
 
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 import '../config/app_config.dart';
 import '../storage/token_storage.dart';
@@ -26,7 +29,18 @@ class ApiClient {
                headers: const <String, Object>{'Accept': 'application/json'},
              ),
            ) {
+    _configureDio(_dio);
     _dio.interceptors.add(_AuthenticationInterceptor(this));
+  }
+
+  static void _configureDio(Dio dio) {
+    if (!kIsWeb && dio.httpClientAdapter is IOHttpClientAdapter) {
+      (dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
+        final client = HttpClient();
+        client.badCertificateCallback = (cert, host, port) => true;
+        return client;
+      };
+    }
   }
 
   final Dio _dio;
@@ -116,17 +130,18 @@ class ApiClient {
     final tokens = await _tokenStorage.read();
     if (tokens == null) return false;
     try {
-      final response =
-          await Dio(
-            BaseOptions(
-              baseUrl: AppConfig.apiBaseUrl,
-              connectTimeout: const Duration(seconds: 15),
-              receiveTimeout: const Duration(seconds: 20),
-            ),
-          ).post<Object?>(
-            '/auth/refresh',
-            data: <String, Object>{'refresh_token': tokens.refreshToken},
-          );
+      final refreshDio = Dio(
+        BaseOptions(
+          baseUrl: AppConfig.apiBaseUrl,
+          connectTimeout: const Duration(seconds: 15),
+          receiveTimeout: const Duration(seconds: 20),
+        ),
+      );
+      _configureDio(refreshDio);
+      final response = await refreshDio.post<Object?>(
+        '/auth/refresh',
+        data: <String, Object>{'refresh_token': tokens.refreshToken},
+      );
       final envelope = _decode(response);
       final data = asMap(envelope.data);
       final tokenMap = asMap(data['tokens']);

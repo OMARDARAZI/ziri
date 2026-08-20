@@ -10,4 +10,35 @@ async function updateNotificationsPreference(req,res){ const enabled = req.body.
 const deletionRepo=require('../../repositories/deletion-request.repository');
 async function deleteAccount(req,res){ await users.deactivate(req.user.id); await deletionRepo.createRequest({ userId: req.user.id, phone: req.user.phone, fullName: req.user.full_name, reason: req.body.reason || 'Mobile app deletion request' }); if(req.body.refresh_token){ await tokenService.revoke(req.body.refresh_token); } success(res,{},'Account deactivated successfully'); }
 async function requestPublicDeletion(req,res){ const rawPhone=String(req.body.phone||'').trim(); const phone=normalizePhone(rawPhone); if(!phone) throw new AppError('Phone number is invalid',422,'VALIDATION_ERROR'); const user=await users.findByPhone(phone); if(user){ await users.deactivate(user.id); await deletionRepo.createRequest({ userId: user.id, phone: user.phone, fullName: user.full_name, reason: req.body.reason || 'Public web deletion request' }); } else { await deletionRepo.createRequest({ phone: rawPhone, reason: req.body.reason || 'Public web deletion request (Unregistered)' }); } success(res,{},'Account deletion request submitted successfully'); }
-module.exports={register,login,refresh,logout,me,profile,updateNotificationsPreference,changePassword,deleteAccount,requestPublicDeletion};
+
+async function forgotPasswordRequest(req, res) {
+  const result = await auth.requestPasswordReset(req.body.phone);
+  success(res, result, 'Verification code sent successfully');
+}
+
+async function forgotPasswordVerify(req, res) {
+  const result = await auth.verifyPasswordResetOtp(req.body.phone, req.body.code);
+  success(res, result, 'Code verified successfully');
+}
+
+async function forgotPasswordReset(req, res) {
+  const result = await auth.resetPasswordWithToken(req.body.phone, req.body.reset_token, req.body.new_password);
+  success(res, result, 'Password reset successfully. Please log in with your new password.');
+}
+
+module.exports = {
+  register,
+  login,
+  refresh,
+  logout,
+  me,
+  profile,
+  updateNotificationsPreference,
+  changePassword,
+  deleteAccount,
+  requestPublicDeletion,
+  forgotPasswordRequest,
+  forgotPasswordVerify,
+  forgotPasswordReset
+};
+

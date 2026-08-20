@@ -304,7 +304,26 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               ),
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 8),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton(
+              onPressed: () => context.push('/forgot-password'),
+              style: TextButton.styleFrom(
+                visualDensity: VisualDensity.compact,
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+              ),
+              child: const Text(
+                'Forgot password?',
+                style: TextStyle(
+                  color: ZeereTheme.teal,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
           FilledButton(
             onPressed: _loading ? null : _submit,
             child: _loading
@@ -327,6 +346,351 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       ),
     ),
   );
+}
+
+class ForgotPasswordScreen extends ConsumerStatefulWidget {
+  const ForgotPasswordScreen({super.key});
+  @override
+  ConsumerState<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
+}
+
+class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
+  final _phoneFormKey = GlobalKey<FormState>();
+  final _otpFormKey = GlobalKey<FormState>();
+  final _resetFormKey = GlobalKey<FormState>();
+
+  final _phone = TextEditingController();
+  final _code = TextEditingController();
+  final _newPassword = TextEditingController();
+  final _confirmPassword = TextEditingController();
+
+  int _step = 1;
+  bool _loading = false;
+  bool _obscureNew = true;
+  bool _obscureConfirm = true;
+  String? _resetToken;
+
+  @override
+  void dispose() {
+    _phone.dispose();
+    _code.dispose();
+    _newPassword.dispose();
+    _confirmPassword.dispose();
+    super.dispose();
+  }
+
+  Future<void> _requestOtp() async {
+    if (!_phoneFormKey.currentState!.validate()) return;
+    setState(() => _loading = true);
+    try {
+      final fullPhone = Validators.normalizePhone(_phone.text, countryCode: defaultCountryCodes.first.code);
+      final devCode = await ref.read(authRepositoryProvider).requestPasswordReset(phone: fullPhone);
+      if (devCode != null && devCode.isNotEmpty && mounted) {
+        _code.text = devCode;
+      }
+      if (mounted) {
+        setState(() {
+          _step = 2;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Verification code sent to your phone.')),
+        );
+      }
+    } on ApiException catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(error.message)),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _verifyOtp() async {
+    if (!_otpFormKey.currentState!.validate()) return;
+    setState(() => _loading = true);
+    try {
+      final fullPhone = Validators.normalizePhone(_phone.text, countryCode: defaultCountryCodes.first.code);
+      final token = await ref.read(authRepositoryProvider).verifyPasswordResetOtp(
+        phone: fullPhone,
+        code: _code.text.trim(),
+      );
+      if (mounted) {
+        setState(() {
+          _resetToken = token;
+          _step = 3;
+        });
+      }
+    } on ApiException catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(error.message)),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _resetPassword() async {
+    if (!_resetFormKey.currentState!.validate()) return;
+    if (_resetToken == null) {
+      setState(() => _step = 1);
+      return;
+    }
+    setState(() => _loading = true);
+    try {
+      final fullPhone = Validators.normalizePhone(_phone.text, countryCode: defaultCountryCodes.first.code);
+      await ref.read(authRepositoryProvider).resetPasswordWithToken(
+        phone: fullPhone,
+        resetToken: _resetToken!,
+        newPassword: _newPassword.text,
+        confirmation: _confirmPassword.text,
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Password reset successfully. Please log in.'),
+            backgroundColor: ZeereTheme.teal,
+          ),
+        );
+        context.go('/login');
+      }
+    } on ApiException catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(error.message)),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    String title = 'Forgot password';
+    String subtitle = 'Enter your phone number to reset your password.';
+    if (_step == 2) {
+      title = 'Verify code';
+      subtitle = 'Enter the 6-digit code sent to ${_phone.text}.';
+    } else if (_step == 3) {
+      title = 'New password';
+      subtitle = 'Create a secure new password for your account.';
+    }
+
+    return _AuthScaffold(
+      title: title,
+      subtitle: subtitle,
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        child: _step == 1
+            ? _buildStep1()
+            : _step == 2
+                ? _buildStep2()
+                : _buildStep3(),
+      ),
+    );
+  }
+
+  Widget _buildStep1() {
+    return Form(
+      key: _phoneFormKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Container(
+                height: 56,
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  border: Border.all(color: Colors.grey.shade300),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                alignment: Alignment.center,
+                child: const Text(
+                  '🇱🇧 +961',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13,
+                    color: Color(0xFF1B3A5C),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: TextFormField(
+                  controller: _phone,
+                  keyboardType: TextInputType.phone,
+                  validator: Validators.phone,
+                  decoration: const InputDecoration(
+                    labelText: 'Phone number',
+                    hintText: '70 123 456',
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          FilledButton(
+            onPressed: _loading ? null : _requestOtp,
+            child: _loading
+                ? const SizedBox(
+                    height: 22,
+                    width: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                : const Text('Send verification code'),
+          ),
+          const SizedBox(height: 12),
+          TextButton(
+            onPressed: () => context.go('/login'),
+            child: const Text('Remember your password? Log in'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStep2() {
+    return Form(
+      key: _otpFormKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          TextFormField(
+            controller: _code,
+            keyboardType: TextInputType.number,
+            maxLength: 6,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 8,
+              color: ZeereTheme.navy,
+            ),
+            validator: (val) {
+              if (val == null || val.trim().length != 6) {
+                return 'Enter the 6-digit code';
+              }
+              return null;
+            },
+            decoration: const InputDecoration(
+              labelText: 'Verification code',
+              hintText: '123456',
+              counterText: '',
+            ),
+          ),
+          const SizedBox(height: 24),
+          FilledButton(
+            onPressed: _loading ? null : _verifyOtp,
+            child: _loading
+                ? const SizedBox(
+                    height: 22,
+                    width: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                : const Text('Verify code'),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              TextButton(
+                onPressed: _loading ? null : _requestOtp,
+                child: const Text('Resend code'),
+              ),
+              const Text(' • ', style: TextStyle(color: Colors.grey)),
+              TextButton(
+                onPressed: () => setState(() => _step = 1),
+                child: const Text('Change phone'),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStep3() {
+    return Form(
+      key: _resetFormKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          TextFormField(
+            controller: _newPassword,
+            obscureText: _obscureNew,
+            validator: Validators.password,
+            decoration: InputDecoration(
+              labelText: 'New password',
+              suffixIcon: IconButton(
+                onPressed: () => setState(() => _obscureNew = !_obscureNew),
+                icon: Icon(
+                  _obscureNew
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
+                ),
+                tooltip: 'Show password',
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          TextFormField(
+            controller: _confirmPassword,
+            obscureText: _obscureConfirm,
+            validator: (val) {
+              if (val != _newPassword.text) {
+                return 'Passwords do not match';
+              }
+              return null;
+            },
+            decoration: InputDecoration(
+              labelText: 'Confirm new password',
+              suffixIcon: IconButton(
+                onPressed: () => setState(() => _obscureConfirm = !_obscureConfirm),
+                icon: Icon(
+                  _obscureConfirm
+                      ? Icons.visibility_outlined
+                      : Icons.visibility_off_outlined,
+                ),
+                tooltip: 'Show password',
+              ),
+            ),
+          ),
+          const SizedBox(height: 24),
+          FilledButton(
+            onPressed: _loading ? null : _resetPassword,
+            child: _loading
+                ? const SizedBox(
+                    height: 22,
+                    width: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                : const Text('Reset password'),
+          ),
+          const SizedBox(height: 12),
+          TextButton(
+            onPressed: () => context.go('/login'),
+            child: const Text('Cancel'),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class RegisterScreen extends ConsumerStatefulWidget {

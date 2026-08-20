@@ -76,6 +76,10 @@ const columns = {
   },
   support_messages: {
     updated_at: 'TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'
+  },
+  password_reset_codes: {
+    reset_token: 'VARCHAR(128) NULL',
+    is_used: 'BOOLEAN NOT NULL DEFAULT FALSE'
   }
 };
 

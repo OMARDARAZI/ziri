@@ -30,7 +30,7 @@ final routerProvider = Provider<GoRouter>((Ref ref) {
       if (path == '/splash') {
         return session.isAuthenticated ? '/home' : '/login';
       }
-      const public = <String>{'/login', '/register'};
+      const public = <String>{'/login', '/register', '/forgot-password'};
       final protected =
           path.startsWith('/bookings') || path.startsWith('/profile') || path.startsWith('/notifications');
       if (!session.isAuthenticated && protected) {
@@ -48,6 +48,7 @@ final routerProvider = Provider<GoRouter>((Ref ref) {
       GoRoute(path: '/splash', builder: (_, _) => const SplashScreen()),
       GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
       GoRoute(path: '/register', builder: (_, _) => const RegisterScreen()),
+      GoRoute(path: '/forgot-password', builder: (_, _) => const ForgotPasswordScreen()),
       GoRoute(
         path: '/story-viewer',
         builder: (BuildContext context, GoRouterState state) {

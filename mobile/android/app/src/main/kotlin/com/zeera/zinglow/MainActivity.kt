@@ -1,4 +1,4 @@
-package com.zeere.app
+package com.zeera.zinglow
 
 import io.flutter.embedding.android.FlutterActivity
 

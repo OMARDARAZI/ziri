@@ -284,6 +284,34 @@ void main() {
     expect(find.byType(TextField), findsOneWidget);
     expect(find.text('Validate QR Code'), findsOneWidget);
   });
+
+  testWidgets('renders Forgot password button on LoginScreen', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      const ProviderScope(
+        child: MaterialApp(
+          home: LoginScreen(),
+        ),
+      ),
+    );
+    expect(find.text('Forgot password?'), findsOneWidget);
+  });
+
+  testWidgets('renders ForgotPasswordScreen with phone input and submit button', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      const ProviderScope(
+        child: MaterialApp(
+          home: ForgotPasswordScreen(),
+        ),
+      ),
+    );
+    expect(find.text('Forgot password'), findsOneWidget);
+    expect(find.text('Send verification code'), findsOneWidget);
+    expect(find.byType(TextFormField), findsOneWidget);
+  });
 }
 
 

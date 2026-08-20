@@ -30,7 +30,12 @@ class AuthTokens {
 
 class TokenStorage {
   TokenStorage([FlutterSecureStorage? storage])
-    : _storage = storage ?? const FlutterSecureStorage();
+    : _storage = storage ??
+          const FlutterSecureStorage(
+            aOptions: AndroidOptions(
+              resetOnError: true,
+            ),
+          );
 
   static const _accessKey = 'zeere_access_token';
   static const _refreshKey = 'zeere_refresh_token';

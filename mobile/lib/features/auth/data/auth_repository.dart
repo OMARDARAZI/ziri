@@ -108,6 +108,47 @@ class AuthRepository {
     await _tokens.clear();
   }
 
+  Future<String?> requestPasswordReset({required String phone}) async {
+    final envelope = await _api.post(
+      '/auth/forgot-password/request',
+      data: <String, Object>{'phone': Validators.normalizePhone(phone)},
+    );
+    final data = asMap(envelope.data);
+    return data['code']?.toString();
+  }
+
+  Future<String> verifyPasswordResetOtp({
+    required String phone,
+    required String code,
+  }) async {
+    final envelope = await _api.post(
+      '/auth/forgot-password/verify',
+      data: <String, Object>{
+        'phone': Validators.normalizePhone(phone),
+        'code': code.trim(),
+      },
+    );
+    final data = asMap(envelope.data);
+    return requiredString(data, 'resetToken');
+  }
+
+  Future<void> resetPasswordWithToken({
+    required String phone,
+    required String resetToken,
+    required String newPassword,
+    required String confirmation,
+  }) async {
+    await _api.post(
+      '/auth/forgot-password/reset',
+      data: <String, Object>{
+        'phone': Validators.normalizePhone(phone),
+        'reset_token': resetToken,
+        'new_password': newPassword,
+        'password_confirmation': confirmation,
+      },
+    );
+  }
+
   Future<void> logout() async {
     final tokens = await _tokens.read();
     try {

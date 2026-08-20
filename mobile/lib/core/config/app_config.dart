@@ -1,6 +1,3 @@
-import 'dart:io' show Platform;
-import 'package:flutter/foundation.dart' show kIsWeb;
-
 class AppConfig {
   const AppConfig._();
 
@@ -16,8 +13,7 @@ class AppConfig {
   static String get _defaultHost {
     const customHost = String.fromEnvironment('SERVER_HOST');
     if (customHost.isNotEmpty) return customHost;
-    if (kIsWeb) return 'localhost:3000';
-    return Platform.isAndroid ? '10.0.2.2:3000' : 'localhost:3000';
+    return '54.224.201.177:3000';
   }
 
   static String get adminUrl {

@@ -9,6 +9,14 @@ class OneSignalService {
   static Future<void> init() async {
     if (_initialized || kIsWeb) return;
 
+    final appId = AppConfig.oneSignalAppId;
+    if (appId.isEmpty || appId == 'YOUR_ONESIGNAL_APP_ID' || appId.length < 10) {
+      if (kDebugMode) {
+        print('OneSignal skipped: No valid OneSignal App ID provided.');
+      }
+      return;
+    }
+
     try {
       if (kDebugMode) {
         OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
